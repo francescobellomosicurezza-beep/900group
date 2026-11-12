@@ -1,0 +1,64 @@
+{% extends "novecento/base.html" %}
+{% block title %}{{ categoria.nome }}{% endblock %}
+{% block content %}
+<p class="nv-badge-sede">900 {{ sede.nome }} · {{ bozza.nome }} {{ bozza.cognome }}</p>
+
+<div class="nv-progress mb-2" role="progressbar" aria-valuemin="1" aria-valuemax="{{ totale_categorie }}" aria-valuenow="{{ indice }}">
+  {% for c in categorie %}
+    <span class="{% if forloop.counter < indice %}done{% elif forloop.counter == indice %}current{% endif %}" title="{{ c.nome }}"></span>
+  {% endfor %}
+</div>
+<p class="text-center text-muted small mb-1">Categoria {{ indice }} di {{ totale_categorie }}</p>
+<h1 class="nv-title">- {{ categoria.nome }} -</h1>
+{% if categoria.descrizione %}<p class="text-center text-muted">{{ categoria.descrizione }}</p>{% endif %}
+
+<form method="post" novalidate>
+  {% csrf_token %}
+  {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+  <ul class="nv-articoli list-unstyled">
+    {% for articolo, campo in form.righe %}
+      <li class="nv-articolo">
+        <div class="nv-articolo-info">
+          <label for="{{ campo.id_for_label }}" class="nv-articolo-nome">{{ articolo.nome }}</label>
+          <span class="nv-articolo-unita">{{ articolo.get_unita_display }}{% if articolo.descrizione %} · {{ articolo.descrizione }}{% endif %}</span>
+          {% for error in campo.errors %}<span class="text-danger small d-block">{{ error }}</span>{% endfor %}
+        </div>
+        <div class="nv-stepper">
+          <button type="button" class="btn btn-outline-nv" data-step="-1" aria-label="Diminuisci {{ articolo.nome }}">−</button>
+          {{ campo }}
+          <button type="button" class="btn btn-outline-nv" data-step="1" aria-label="Aumenta {{ articolo.nome }}">+</button>
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+
+  <p class="text-center small text-muted">Articoli nell'ordine finora: <strong>{{ articoli_selezionati }}</strong></p>
+
+  <div class="nv-actions nv-actions-sticky d-flex gap-2">
+    <button type="submit" name="azione" value="indietro" class="btn btn-outline-nv btn-lg flex-fill">Indietro</button>
+    <button type="submit" name="azione" value="avanti" class="btn btn-nv btn-lg flex-fill">
+      {% if ultima %}Riepilogo{% else %}Avanti{% endif %}
+    </button>
+  </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.querySelectorAll(".nv-stepper").forEach(function (box) {
+    var input = box.querySelector("input");
+    function evidenzia() {
+      box.closest(".nv-articolo").classList.toggle("selected", parseInt(input.value || "0", 10) > 0);
+    }
+    box.querySelectorAll("button[data-step]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var valore = parseInt(input.value || "0", 10) + parseInt(btn.dataset.step, 10);
+        input.value = Math.max(0, Math.min(9999, isNaN(valore) ? 0 : valore)) || "";
+        evidenzia();
+      });
+    });
+    input.addEventListener("input", evidenzia);
+    evidenzia();
+  });
+</script>
+{% endblock %}

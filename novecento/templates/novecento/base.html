@@ -1,0 +1,44 @@
+{% load static %}<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#4E2E22">
+  <title>{% block title %}Ordini{% endblock %} · Gelateria Novecento</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600&family=Lobster&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="{% static 'vendor/bootstrap/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'novecento/novecento.css' %}" rel="stylesheet">
+</head>
+<body>
+  <header class="nv-header">
+    <a href="{% url 'novecento:scelta_sede' %}" class="nv-logo text-decoration-none">
+      <span class="nv-logo-top">GELATERIA</span>
+      <span class="nv-logo-main">Novecento</span>
+    </a>
+  </header>
+
+  {% if passo and passo <= 4 %}
+  <nav class="nv-steps container" aria-label="Avanzamento ordine">
+    <ol>
+      <li class="{% if passo >= 1 %}done{% endif %}{% if passo == 1 %} current{% endif %}">Sede</li>
+      <li class="{% if passo >= 2 %}done{% endif %}{% if passo == 2 %} current{% endif %}">Chi sei</li>
+      <li class="{% if passo >= 3 %}done{% endif %}{% if passo == 3 %} current{% endif %}">Articoli</li>
+      <li class="{% if passo >= 4 %}done{% endif %}{% if passo == 4 %} current{% endif %}">Invio</li>
+    </ol>
+  </nav>
+  {% endif %}
+
+  <main class="container nv-main">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}" role="alert">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

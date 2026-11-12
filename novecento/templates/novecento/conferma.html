@@ -1,0 +1,34 @@
+{% extends "novecento/base.html" %}
+{% block title %}Ordine {{ ordine.numero }}{% endblock %}
+{% block content %}
+{% if ordine.stato_invio == "inviato" %}
+  <div class="nv-esito ok">
+    <div class="nv-esito-icona" aria-hidden="true">✓</div>
+    <h1 class="nv-title mb-1">Ordine inviato</h1>
+    <p class="mb-0">Il laboratorio ha ricevuto l'ordine via email.</p>
+  </div>
+{% else %}
+  <div class="nv-esito ko">
+    <div class="nv-esito-icona" aria-hidden="true">!</div>
+    <h1 class="nv-title mb-1">Ordine salvato, email non inviata</h1>
+    <p class="mb-2">L'ordine è stato registrato ma l'invio non è riuscito.</p>
+    <form method="post" action="{% url 'novecento:reinvia' %}">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-nv">Riprova invio</button>
+    </form>
+  </div>
+{% endif %}
+
+<dl class="nv-dati">
+  <dt>Numero</dt><dd>{{ ordine.numero }}</dd>
+  <dt>Punto vendita</dt><dd>900 {{ ordine.sede.nome }}</dd>
+  <dt>Operatore</dt><dd>{{ ordine.operatore }}</dd>
+  <dt>Data</dt><dd>{{ ordine.creato_il|date:"d/m/Y H:i" }}</dd>
+  <dt>Articoli</dt><dd>{{ righe|length }}</dd>
+</dl>
+
+<div class="d-grid gap-2 nv-actions">
+  <a href="{% url 'novecento:pdf_ordine' %}" target="_blank" class="btn btn-outline-nv btn-lg">Visualizza PDF</a>
+  <a href="{% url 'novecento:scelta_sede' %}" class="btn btn-nv btn-lg">Nuovo ordine</a>
+</div>
+{% endblock %}
