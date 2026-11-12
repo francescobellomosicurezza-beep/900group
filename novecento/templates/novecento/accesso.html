@@ -1,0 +1,28 @@
+{% extends "novecento/base.html" %}
+{% block title %}Accesso{% endblock %}
+{% block content %}
+<h1 class="nv-title">- Accesso -</h1>
+<p class="text-center text-muted mb-4">Entra con le credenziali del tuo punto vendita.</p>
+
+<form method="post" novalidate>
+  {% csrf_token %}
+  {% if form.non_field_errors %}
+    <div class="alert alert-danger">Username o password non corretti.</div>
+  {% endif %}
+  <div class="mb-3">
+    <label for="{{ form.username.id_for_label }}" class="form-label fw-semibold">Username</label>
+    <input type="text" name="{{ form.username.html_name }}" id="{{ form.username.id_for_label }}"
+           value="{{ form.username.value|default_if_none:'' }}" class="form-control form-control-lg"
+           autocomplete="username" autocapitalize="none" required autofocus>
+  </div>
+  <div class="mb-3">
+    <label for="{{ form.password.id_for_label }}" class="form-label fw-semibold">Password</label>
+    <input type="password" name="{{ form.password.html_name }}" id="{{ form.password.id_for_label }}"
+           class="form-control form-control-lg" autocomplete="current-password" required>
+  </div>
+  <input type="hidden" name="next" value="{{ next }}">
+  <div class="nv-actions">
+    <button type="submit" class="btn btn-nv btn-lg w-100">Entra</button>
+  </div>
+</form>
+{% endblock %}

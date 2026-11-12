@@ -102,7 +102,12 @@ ORDINI_EMAIL_DESTINATARI = [
     if e.strip()
 ]
 
-SESSION_COOKIE_AGE = 60 * 60 * 12
+LOGIN_URL = "login"
+LOGIN_REDIRECT_URL = "novecento:scelta_sede"
+LOGOUT_REDIRECT_URL = "login"
+
+# I dispositivi dei punti vendita restano collegati per 30 giorni
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 30
 
 if not DEBUG:
     SESSION_COOKIE_SECURE = True

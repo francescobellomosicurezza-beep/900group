@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib import admin, messages
+from django.contrib.auth import get_user_model, password_validation
 from django.http import HttpResponse
 from django.urls import path, reverse
 from django.utils.html import format_html
@@ -10,29 +11,84 @@ from .pdf import genera_pdf_ordine, nome_file_pdf
 
 
 class SedeAdminForm(forms.ModelForm):
-    nuovo_pin = forms.CharField(
-        label="Nuovo PIN",
+    username = forms.CharField(
+        label="Username di accesso",
         required=False,
-        max_length=20,
-        widget=forms.PasswordInput(render_value=False),
-        help_text="Lasciare vuoto per non modificare il PIN attuale.",
+        max_length=150,
+        help_text="Credenziale con cui il punto vendita entra nell'app (es. spello).",
     )
-    rimuovi_pin = forms.BooleanField(
-        label="Rimuovi PIN",
+    nuova_password = forms.CharField(
+        label="Nuova password",
         required=False,
-        help_text="Il punto vendita potrà ordinare senza PIN.",
+        strip=False,
+        widget=forms.PasswordInput(render_value=False),
+        help_text="Obbligatoria alla creazione dell'account; vuota per non modificarla.",
+    )
+    disattiva_account = forms.BooleanField(
+        label="Disattiva account",
+        required=False,
+        help_text="Scollega e disattiva l'account: il punto vendita non potrà più accedere.",
     )
 
     class Meta:
         model = Sede
         fields = ["nome", "slug", "indirizzo", "email", "attiva", "ordine"]
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance.pk and self.instance.account_id:
+            self.fields["username"].initial = self.instance.account.username
+
+    def clean(self):
+        cleaned = super().clean()
+        if cleaned.get("disattiva_account"):
+            return cleaned
+        username = (cleaned.get("username") or "").strip()
+        password = cleaned.get("nuova_password") or ""
+        account = self.instance.account if self.instance.pk else None
+        if not username:
+            if password:
+                self.add_error("username", "Indica lo username per impostare la password.")
+            return cleaned
+        Utente = get_user_model()
+        altro = Utente.objects.filter(username__iexact=username)
+        if account:
+            altro = altro.exclude(pk=account.pk)
+        if altro.exists():
+            self.add_error("username", "Username già in uso.")
+        if account is None and not password:
+            self.add_error("nuova_password", "Imposta una password per il nuovo account.")
+        if password:
+            utente_prova = account or Utente(username=username)
+            try:
+                password_validation.validate_password(password, utente_prova)
+            except forms.ValidationError as errore:
+                self.add_error("nuova_password", errore)
+        cleaned["username"] = username
+        return cleaned
+
     def save(self, commit=True):
         sede = super().save(commit=False)
-        if self.cleaned_data.get("rimuovi_pin"):
-            sede.imposta_pin("")
-        elif self.cleaned_data.get("nuovo_pin"):
-            sede.imposta_pin(self.cleaned_data["nuovo_pin"])
+        Utente = get_user_model()
+        account = sede.account if sede.account_id else None
+        username = self.cleaned_data.get("username")
+        password = self.cleaned_data.get("nuova_password")
+
+        if self.cleaned_data.get("disattiva_account"):
+            if account:
+                account.is_active = False
+                account.save(update_fields=["is_active"])
+            sede.account = None
+        elif username:
+            if account is None:
+                account = Utente(username=username)
+            account.username = username
+            account.is_active = True
+            if password:
+                account.set_password(password)
+            account.save()
+            sede.account = account
+
         if commit:
             sede.save()
         return sede
@@ -41,18 +97,24 @@ class SedeAdminForm(forms.ModelForm):
 @admin.register(Sede)
 class SedeAdmin(admin.ModelAdmin):
     form = SedeAdminForm
-    list_display = ["nome", "indirizzo", "email", "pin_impostato", "attiva", "ordine"]
+    list_display = ["nome", "indirizzo", "email", "username_accesso", "attiva", "ordine"]
     list_editable = ["attiva", "ordine"]
+    list_select_related = ["account"]
     prepopulated_fields = {"slug": ["nome"]}
-    search_fields = ["nome", "indirizzo"]
+    search_fields = ["nome", "indirizzo", "account__username"]
     fieldsets = [
         (None, {"fields": ["nome", "slug", "indirizzo", "email", "attiva", "ordine"]}),
-        ("Accesso", {"fields": ["nuovo_pin", "rimuovi_pin"]}),
+        (
+            "Credenziali del punto vendita",
+            {"fields": ["username", "nuova_password", "disattiva_account"]},
+        ),
     ]
 
-    @admin.display(boolean=True, description="PIN")
-    def pin_impostato(self, obj):
-        return obj.richiede_pin
+    @admin.display(description="username accesso")
+    def username_accesso(self, obj):
+        if obj.account_id and obj.account.is_active:
+            return obj.account.username
+        return "—"
 
 
 class ArticoloInline(admin.TabularInline):

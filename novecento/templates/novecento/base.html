@@ -18,6 +18,15 @@
       <span class="nv-logo-main">Novecento</span>
     </a>
   </header>
+  {% if user.is_authenticated %}
+  <div class="nv-account container">
+    <span>Accesso: <strong>{{ user.username }}</strong></span>
+    <form method="post" action="{% url 'logout' %}" class="d-inline">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-link btn-sm p-0 nv-esci">Esci</button>
+    </form>
+  </div>
+  {% endif %}
 
   {% if passo and passo <= 4 %}
   <nav class="nv-steps container" aria-label="Avanzamento ordine">

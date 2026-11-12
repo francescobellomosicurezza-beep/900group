@@ -287,3 +287,15 @@ body {
 @media (min-width: 576px) {
   .nv-sedi { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
 }
+
+/* Account */
+.nv-account {
+  max-width: 640px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: .8rem;
+  color: #7d6d63;
+  margin-top: .5rem;
+}
+.nv-esci { color: var(--nv-marrone); font-weight: 600; }

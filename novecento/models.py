@@ -1,4 +1,4 @@
-from django.contrib.auth.hashers import check_password, make_password
+from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
 
@@ -12,7 +12,14 @@ class Sede(models.Model):
         blank=True,
         help_text="Se valorizzata, riceve in copia il PDF degli ordini della sede.",
     )
-    pin_hash = models.CharField("PIN (hash)", max_length=128, blank=True, editable=False)
+    account = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        verbose_name="account di accesso",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="sede",
+    )
     attiva = models.BooleanField("attiva", default=True)
     ordine = models.PositiveSmallIntegerField("ordine di visualizzazione", default=0)
 
@@ -24,17 +31,11 @@ class Sede(models.Model):
     def __str__(self):
         return self.nome
 
-    @property
-    def richiede_pin(self):
-        return bool(self.pin_hash)
-
-    def imposta_pin(self, pin):
-        self.pin_hash = make_password(pin) if pin else ""
-
-    def verifica_pin(self, pin):
-        if not self.pin_hash:
-            return True
-        return bool(pin) and check_password(pin, self.pin_hash)
+    @classmethod
+    def per_utente(cls, utente):
+        """Sede collegata all'account, se attiva."""
+        sede = getattr(utente, "sede", None)
+        return sede if sede is not None and sede.attiva else None
 
 
 class Categoria(models.Model):

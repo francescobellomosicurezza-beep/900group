@@ -4,31 +4,14 @@ from .models import Sede
 
 
 class SedeForm(forms.Form):
+    """Scelta della sede, usata solo dagli amministratori."""
+
     sede = forms.ModelChoiceField(
         queryset=Sede.objects.filter(attiva=True),
         empty_label=None,
         widget=forms.RadioSelect,
-        label="Seleziona il tuo punto vendita",
+        label="Seleziona il punto vendita",
     )
-    pin = forms.CharField(
-        label="PIN del punto vendita",
-        required=False,
-        max_length=20,
-        widget=forms.PasswordInput(
-            attrs={
-                "class": "form-control form-control-lg",
-                "inputmode": "numeric",
-                "autocomplete": "off",
-            }
-        ),
-    )
-
-    def clean(self):
-        cleaned = super().clean()
-        sede = cleaned.get("sede")
-        if sede and not sede.verifica_pin(cleaned.get("pin", "")):
-            self.add_error("pin", "PIN non corretto per il punto vendita selezionato.")
-        return cleaned
 
 
 class OperatoreForm(forms.Form):

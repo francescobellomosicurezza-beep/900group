@@ -24,7 +24,9 @@
     {% for error in form.cognome.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
   </div>
   <div class="nv-actions d-flex gap-2">
-    <a href="{% url 'novecento:scelta_sede' %}" class="btn btn-outline-nv btn-lg flex-fill">Indietro</a>
+    {% if user.is_staff or user.is_superuser %}
+      <a href="{% url 'novecento:scelta_sede' %}" class="btn btn-outline-nv btn-lg flex-fill">Cambia sede</a>
+    {% endif %}
     <button type="submit" class="btn btn-nv btn-lg flex-fill">Inizia ordine</button>
   </div>
 </form>

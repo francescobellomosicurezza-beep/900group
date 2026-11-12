@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Count, Prefetch, Q
 from django.http import Http404, HttpResponse
@@ -39,8 +40,21 @@ def _categorie_ordinabili():
     )
 
 
-def _sede_bozza(bozza):
-    return Sede.objects.filter(pk=bozza.get("sede_id"), attiva=True).first()
+def _puo_scegliere_sede(utente):
+    return utente.is_staff or utente.is_superuser
+
+
+def _sede_bozza(request, bozza):
+    """Sede della bozza, solo se coerente con l'account collegato."""
+    if not bozza:
+        return None
+    sede = Sede.objects.filter(pk=bozza.get("sede_id"), attiva=True).first()
+    if sede is None:
+        return None
+    if _puo_scegliere_sede(request.user):
+        return sede
+    sede_account = Sede.per_utente(request.user)
+    return sede if sede_account and sede_account.pk == sede.pk else None
 
 
 def _righe_bozza(bozza):
@@ -59,7 +73,17 @@ def _righe_bozza(bozza):
 # --------------------------------------------------------------------------- #
 
 
+@login_required
 def scelta_sede(request):
+    """Avvio ordine: sede dall'account, oppure scelta libera per gli amministratori."""
+    sede_account = Sede.per_utente(request.user)
+    if sede_account is not None:
+        _salva_bozza(request, {"sede_id": sede_account.pk, "quantita": {}})
+        return redirect("novecento:operatore")
+
+    if not _puo_scegliere_sede(request.user):
+        return render(request, "novecento/nessuna_sede.html", status=403)
+
     if request.method == "POST":
         form = SedeForm(request.POST)
         if form.is_valid():
@@ -68,16 +92,10 @@ def scelta_sede(request):
             return redirect("novecento:operatore")
     else:
         form = SedeForm()
-    sedi = list(form.fields["sede"].queryset)
     return render(
         request,
         "novecento/scelta_sede.html",
-        {
-            "form": form,
-            "sedi": sedi,
-            "sedi_con_pin": [s.pk for s in sedi if s.richiede_pin],
-            "passo": 1,
-        },
+        {"form": form, "sedi": list(form.fields["sede"].queryset), "passo": 1},
     )
 
 
@@ -86,9 +104,10 @@ def scelta_sede(request):
 # --------------------------------------------------------------------------- #
 
 
+@login_required
 def operatore(request):
     bozza = _bozza(request)
-    sede = _sede_bozza(bozza) if bozza else None
+    sede = _sede_bozza(request, bozza)
     if sede is None:
         return redirect("novecento:scelta_sede")
 
@@ -118,9 +137,10 @@ def operatore(request):
 # --------------------------------------------------------------------------- #
 
 
+@login_required
 def categoria(request, indice):
     bozza = _bozza(request)
-    sede = _sede_bozza(bozza) if bozza else None
+    sede = _sede_bozza(request, bozza)
     if sede is None:
         return redirect("novecento:scelta_sede")
     if not bozza.get("nome"):
@@ -181,9 +201,10 @@ def categoria(request, indice):
 # --------------------------------------------------------------------------- #
 
 
+@login_required
 def riepilogo(request):
     bozza = _bozza(request)
-    sede = _sede_bozza(bozza) if bozza else None
+    sede = _sede_bozza(request, bozza)
     if sede is None:
         return redirect("novecento:scelta_sede")
     if not bozza.get("nome"):
@@ -246,9 +267,13 @@ def _ultimo_ordine(request):
     ordine_id = request.session.get(CHIAVE_ULTIMO)
     if not ordine_id:
         raise Http404("Nessun ordine recente.")
-    return get_object_or_404(Ordine.objects.select_related("sede"), pk=ordine_id)
+    ordini = Ordine.objects.select_related("sede")
+    if not _puo_scegliere_sede(request.user):
+        ordini = ordini.filter(sede__account=request.user)
+    return get_object_or_404(ordini, pk=ordine_id)
 
 
+@login_required
 def conferma(request):
     try:
         ordine = _ultimo_ordine(request)
@@ -261,6 +286,7 @@ def conferma(request):
     )
 
 
+@login_required
 def pdf_ordine(request):
     ordine = _ultimo_ordine(request)
     risposta = HttpResponse(genera_pdf_ordine(ordine), content_type="application/pdf")
@@ -268,6 +294,7 @@ def pdf_ordine(request):
     return risposta
 
 
+@login_required
 @require_POST
 def reinvia(request):
     ordine = _ultimo_ordine(request)
@@ -280,6 +307,7 @@ def reinvia(request):
     return redirect("novecento:conferma")
 
 
+@login_required
 @require_POST
 def annulla(request):
     request.session.pop(CHIAVE_BOZZA, None)

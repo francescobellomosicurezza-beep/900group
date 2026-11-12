@@ -1,0 +1,206 @@
+{
+  "config/__init__.py": {
+    "mtime": 1794514004.9636226,
+    "seen": 1794514954.2183297,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "config/asgi.py": {
+    "mtime": 1794514006.2624314,
+    "seen": 1794514954.2183387,
+    "ast_hash": "58ae1ed847720f4c7c213b322927d017",
+    "semantic_hash": ""
+  },
+  "config/settings.py": {
+    "mtime": 1794514868.2487028,
+    "seen": 1794514954.2183425,
+    "ast_hash": "03c68dcade828e5792ecd0cd0bb8ad2d",
+    "semantic_hash": ""
+  },
+  "config/urls.py": {
+    "mtime": 1794514850.4151602,
+    "seen": 1794514954.2183444,
+    "ast_hash": "f9b0e77511a2317c7e414607bb67951d",
+    "semantic_hash": ""
+  },
+  "config/wsgi.py": {
+    "mtime": 1794514006.2623458,
+    "seen": 1794514954.2183459,
+    "ast_hash": "478d2b30806bcc26be78be763e6772e6",
+    "semantic_hash": ""
+  },
+  "manage.py": {
+    "mtime": 1794514006.2690673,
+    "seen": 1794514954.2183478,
+    "ast_hash": "95cb74342a0d6010c2bfff05887c77b5",
+    "semantic_hash": ""
+  },
+  "novecento/__init__.py": {
+    "mtime": 1794514008.7438827,
+    "seen": 1794514954.2183492,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "novecento/admin.py": {
+    "mtime": 1794514889.8009698,
+    "seen": 1794514954.2183504,
+    "ast_hash": "741329c96e5ae3eb025c538aa1244a98",
+    "semantic_hash": ""
+  },
+  "novecento/apps.py": {
+    "mtime": 1794514008.9184973,
+    "seen": 1794514954.2183514,
+    "ast_hash": "122286c48fad492f808dd5648cce1038",
+    "semantic_hash": ""
+  },
+  "novecento/forms.py": {
+    "mtime": 1794514826.49015,
+    "seen": 1794514954.2183528,
+    "ast_hash": "1e80307c33824029a94839e33709fa34",
+    "semantic_hash": ""
+  },
+  "novecento/management/__init__.py": {
+    "mtime": 1794514889.8071625,
+    "seen": 1794514954.2183542,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "novecento/management/commands/__init__.py": {
+    "mtime": 1794514889.8071625,
+    "seen": 1794514954.2183557,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "novecento/management/commands/crea_accesso_sede.py": {
+    "mtime": 1794514889.8231626,
+    "seen": 1794514954.2183568,
+    "ast_hash": "6e6e206c06680aa606aef2317f488f6a",
+    "semantic_hash": ""
+  },
+  "novecento/migrations/0001_initial.py": {
+    "mtime": 1794514536.9606683,
+    "seen": 1794514954.218358,
+    "ast_hash": "aa87299f1cb9cd19a43f21b792323286",
+    "semantic_hash": ""
+  },
+  "novecento/migrations/0002_dati_iniziali.py": {
+    "mtime": 1794514511.61114,
+    "seen": 1794514954.2183592,
+    "ast_hash": "b5e9ced5d1dda75e3256f0e2dab83062",
+    "semantic_hash": ""
+  },
+  "novecento/migrations/0003_account_sede.py": {
+    "mtime": 1794514893.6937985,
+    "seen": 1794514954.2183607,
+    "ast_hash": "ba699edadfb0331b5229a159e17e0c21",
+    "semantic_hash": ""
+  },
+  "novecento/migrations/__init__.py": {
+    "mtime": 1794514008.7439823,
+    "seen": 1794514954.2183616,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "novecento/models.py": {
+    "mtime": 1794514822.6853614,
+    "seen": 1794514954.2183628,
+    "ast_hash": "6dadb7802c9f54a15c5fa759aac42fd4",
+    "semantic_hash": ""
+  },
+  "novecento/notifiche.py": {
+    "mtime": 1794514367.5951316,
+    "seen": 1794514954.2183645,
+    "ast_hash": "264d0eb2938be5b81be8398e8b415777",
+    "semantic_hash": ""
+  },
+  "novecento/pdf.py": {
+    "mtime": 1794514360.639131,
+    "seen": 1794514954.2183657,
+    "ast_hash": "ce57fa382d1a60d6f3a0cd6dbc93ee31",
+    "semantic_hash": ""
+  },
+  "novecento/tests.py": {
+    "mtime": 1794514925.8031647,
+    "seen": 1794514954.2183666,
+    "ast_hash": "6075ff72ca0e9247379d4618cf0bcebf",
+    "semantic_hash": ""
+  },
+  "novecento/urls.py": {
+    "mtime": 1794514395.9751332,
+    "seen": 1794514954.218368,
+    "ast_hash": "847462ade1f866bea3b27d2e2963195c",
+    "semantic_hash": ""
+  },
+  "novecento/views.py": {
+    "mtime": 1794514846.759755,
+    "seen": 1794514954.2183695,
+    "ast_hash": "f904b4acf0f073062ae6635e74723cdc",
+    "semantic_hash": ""
+  },
+  "MENU_NOVECENTO.md": {
+    "mtime": 1794513752.519095,
+    "seen": 1794514954.218371,
+    "ast_hash": "2e3dd2f7ff7aa07ac89ef3d32e217361",
+    "semantic_hash": ""
+  },
+  "README.md": {
+    "mtime": 1794514599.9123769,
+    "seen": 1794514954.2183719,
+    "ast_hash": "5bfef116facb6e5016b54337e4572823",
+    "semantic_hash": ""
+  },
+  "novecento/templates/novecento/accesso.html": {
+    "mtime": 1794514854.4591606,
+    "seen": 1794514954.218373,
+    "ast_hash": "e5478d6c649c1f5d1da4bcf079a14bc6",
+    "semantic_hash": ""
+  },
+  "novecento/templates/novecento/base.html": {
+    "mtime": 1794514865.015161,
+    "seen": 1794514954.2183745,
+    "ast_hash": "458ecfb9fd901e7ec6fcfc2366605977",
+    "semantic_hash": ""
+  },
+  "novecento/templates/novecento/categoria.html": {
+    "mtime": 1794514466.7231374,
+    "seen": 1794514954.2183757,
+    "ast_hash": "02d60a34d4217b37d0c9d1188cdf4701",
+    "semantic_hash": ""
+  },
+  "novecento/templates/novecento/conferma.html": {
+    "mtime": 1794514466.7431374,
+    "seen": 1794514954.2183769,
+    "ast_hash": "54e87627df7977ff2b084b556fda2e1e",
+    "semantic_hash": ""
+  },
+  "novecento/templates/novecento/nessuna_sede.html": {
+    "mtime": 1794514856.5591607,
+    "seen": 1794514954.218378,
+    "ast_hash": "a36c065534929cd7e3702ea2b291d4a5",
+    "semantic_hash": ""
+  },
+  "novecento/templates/novecento/operatore.html": {
+    "mtime": 1794514950.9231663,
+    "seen": 1794514954.2183795,
+    "ast_hash": "7f2d3e1fbc56dcf7d15ea4efd75137dc",
+    "semantic_hash": ""
+  },
+  "novecento/templates/novecento/riepilogo.html": {
+    "mtime": 1794514466.7311375,
+    "seen": 1794514954.2183812,
+    "ast_hash": "c5d585146e2055cb49ebb3ca41873e4e",
+    "semantic_hash": ""
+  },
+  "novecento/templates/novecento/scelta_sede.html": {
+    "mtime": 1794514860.7151608,
+    "seen": 1794514954.2183824,
+    "ast_hash": "fbd0ce336a5cbfd11ed427f08ff0cdaa",
+    "semantic_hash": ""
+  },
+  "requirements.txt": {
+    "mtime": 1794514599.9070451,
+    "seen": 1794514954.2183833,
+    "ast_hash": "831bdb2731321c484d017df57372552c",
+    "semantic_hash": ""
+  }
+}

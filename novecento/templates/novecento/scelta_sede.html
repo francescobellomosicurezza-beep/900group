@@ -2,17 +2,16 @@
 {% block title %}Punto vendita{% endblock %}
 {% block content %}
 <h1 class="nv-title">- Nuovo ordine -</h1>
-<p class="text-center text-muted mb-4">Seleziona il tuo punto vendita.</p>
+<p class="text-center text-muted mb-4">Accesso amministratore: seleziona il punto vendita.</p>
 
 {% if not sedi %}
-  <div class="alert alert-warning">Nessun punto vendita attivo. Contatta l'amministratore.</div>
+  <div class="alert alert-warning">Nessun punto vendita attivo. Aggiungilo dal pannello di amministrazione.</div>
 {% else %}
 <form method="post" novalidate>
   {% csrf_token %}
   <div class="nv-sedi">
     {% for sede in sedi %}
       <input type="radio" class="btn-check" name="sede" id="sede-{{ sede.pk }}" value="{{ sede.pk }}"
-             data-pin="{% if sede.richiede_pin %}1{% else %}0{% endif %}"
              {% if form.sede.value|stringformat:"s" == sede.pk|stringformat:"s" %}checked{% endif %} required>
       <label class="nv-sede-card" for="sede-{{ sede.pk }}">
         <span class="nv-sede-900">900</span>
@@ -23,31 +22,9 @@
   </div>
   {% for error in form.sede.errors %}<div class="text-danger small mt-2">{{ error }}</div>{% endfor %}
 
-  <div id="blocco-pin" class="mt-4" {% if not form.pin.errors %}hidden{% endif %}>
-    <label for="{{ form.pin.id_for_label }}" class="form-label fw-semibold">{{ form.pin.label }}</label>
-    {{ form.pin }}
-    {% for error in form.pin.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
-  </div>
-
   <div class="nv-actions">
     <button type="submit" class="btn btn-nv btn-lg w-100">Continua</button>
   </div>
 </form>
 {% endif %}
-{% endblock %}
-
-{% block extra_js %}
-<script>
-  (function () {
-    var blocco = document.getElementById("blocco-pin");
-    if (!blocco) return;
-    var radios = document.querySelectorAll('input[name="sede"]');
-    function aggiorna() {
-      var scelta = document.querySelector('input[name="sede"]:checked');
-      blocco.hidden = !(scelta && scelta.dataset.pin === "1");
-    }
-    radios.forEach(function (r) { r.addEventListener("change", aggiorna); });
-    aggiorna();
-  })();
-</script>
 {% endblock %}

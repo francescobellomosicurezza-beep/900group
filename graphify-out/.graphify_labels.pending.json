@@ -1,0 +1,20 @@
+{
+  "0": "views.py",
+  "1": "admin.py",
+  "2": "pdf.py",
+  "3": "models.py",
+  "4": "manage.py",
+  "5": "FlussoOrdineTest",
+  "6": "OrdineAdmin",
+  "7": "Gelateria Novecento — Menu di riferimento",
+  "8": "SedeAdminForm",
+  "9": "CategoriaForm",
+  "10": "Ordine",
+  "11": "RigaOrdine",
+  "12": "Novecento – Ordini punti vendita",
+  "13": "apps.py",
+  "14": "config/__init__.py",
+  "15": "commands/__init__.py",
+  "16": "management/__init__.py",
+  "17": "migrations/__init__.py"
+}
