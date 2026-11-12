@@ -254,3 +254,20 @@ class CredenzialiSedeTest(TestCase):
             call_command("crea_accesso_sede", "inesistente", "--password", PASSWORD)
         with self.assertRaises(CommandError):
             call_command("crea_accesso_sede", "bastia", "--password", "123")
+
+
+class DatiDemoTest(TestCase):
+    @override_settings(DEBUG=True)
+    def test_crea_account_demo_idempotente(self):
+        call_command("dati_demo", stdout=StringIO())
+        call_command("dati_demo", stdout=StringIO())
+        for sede in Sede.objects.filter(attiva=True):
+            self.assertIsNotNone(sede.account)
+        self.assertTrue(
+            get_user_model().objects.get(username="admin").check_password("Demo-Admin-2026")
+        )
+
+    @override_settings(DEBUG=False)
+    def test_bloccato_in_produzione(self):
+        with self.assertRaises(CommandError):
+            call_command("dati_demo", stdout=StringIO())

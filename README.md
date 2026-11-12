@@ -18,7 +18,27 @@ Web app Django per gli ordini giornalieri dei punti vendita Gelateria Novecento
 - **Categorie / Articoli**: catalogo ordinabile, ordine di visualizzazione, attivazione.
 - **Ordini**: storico, PDF, reinvio email.
 
-## Avvio in locale
+## Provarla sul proprio computer (doppio clic)
+Requisito: Python 3.12 o superiore (https://www.python.org/downloads/ — su Windows
+spuntare "Add python.exe to PATH" durante l'installazione).
+
+1. Su GitHub: **Code → Download ZIP**, poi estrai la cartella.
+2. Avvia:
+   - **Windows**: doppio clic su `avvia.bat`
+   - **Mac**: tasto destro su `avvia.command` → Apri (la prima volta)
+3. Si apre il browser su http://127.0.0.1:8000 con queste credenziali di prova:
+
+| Accesso | Username | Password |
+|---|---|---|
+| Amministratore (`/admin/`) | admin | Demo-Admin-2026 |
+| 900 Spello | spello | Demo-Spello-2026 |
+| 900 Bastia | bastia | Demo-Bastia-2026 |
+| 900 Foligno | foligno | Demo-Foligno-2026 |
+
+Le email non partono davvero: compaiono nella finestra dello script.
+Le credenziali di prova esistono solo in locale e il comando `dati_demo` è bloccato in produzione.
+
+## Avvio in locale (manuale)
 ```bash
 python3.13 -m venv .venv
 .venv/bin/pip install -r requirements.txt
