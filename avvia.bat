@@ -28,9 +28,13 @@ if not exist ".venv\Scripts\python.exe" (
 ".venv\Scripts\python.exe" manage.py migrate -v 0 || goto errore
 ".venv\Scripts\python.exe" manage.py dati_demo || goto errore
 
-echo App in avvio su http://127.0.0.1:8000  -  chiudi questa finestra per fermarla.
-start "" "http://127.0.0.1:8000"
-".venv\Scripts\python.exe" manage.py runserver 127.0.0.1:8000
+for /f "usebackq delims=" %%p in (`".venv\Scripts\python.exe" manage.py porta_libera --da 8900`) do set "PORTA=%%p"
+if not defined PORTA goto errore
+set "URL=http://127.0.0.1:%PORTA%"
+
+echo Novecento in avvio su %URL%  -  chiudi questa finestra per fermarla.
+start "" /b powershell -NoProfile -Command "Start-Sleep -Seconds 3; Start-Process '%URL%'"
+".venv\Scripts\python.exe" manage.py runserver 127.0.0.1:%PORTA%
 goto fine
 
 :errore

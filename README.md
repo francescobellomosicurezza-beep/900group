@@ -26,7 +26,8 @@ spuntare "Add python.exe to PATH" durante l'installazione).
 2. Avvia:
    - **Windows**: doppio clic su `avvia.bat`
    - **Mac**: tasto destro su `avvia.command` → Apri (la prima volta)
-3. Si apre il browser su http://127.0.0.1:8000 con queste credenziali di prova:
+3. Si apre il browser su http://127.0.0.1:8900 (se occupata, la prima porta libera
+   successiva, indicata nella finestra) con queste credenziali di prova:
 
 | Accesso | Username | Password |
 |---|---|---|

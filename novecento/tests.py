@@ -271,3 +271,16 @@ class DatiDemoTest(TestCase):
     def test_bloccato_in_produzione(self):
         with self.assertRaises(CommandError):
             call_command("dati_demo", stdout=StringIO())
+
+
+class PortaLiberaTest(TestCase):
+    def test_salta_porta_occupata(self):
+        import socket
+
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as occupata:
+            occupata.bind(("127.0.0.1", 0))
+            occupata.listen()
+            porta = occupata.getsockname()[1]
+            out = StringIO()
+            call_command("porta_libera", "--da", str(porta), stdout=out)
+            self.assertNotEqual(int(out.getvalue()), porta)

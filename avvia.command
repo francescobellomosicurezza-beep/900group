@@ -20,7 +20,8 @@ fi
 .venv/bin/python manage.py migrate -v 0
 .venv/bin/python manage.py dati_demo
 
-URL="http://127.0.0.1:8000"
-echo "App in avvio su $URL - premi CTRL+C per fermarla."
-( sleep 2; if command -v open >/dev/null 2>&1; then open "$URL"; elif command -v xdg-open >/dev/null 2>&1; then xdg-open "$URL"; fi ) &
-exec .venv/bin/python manage.py runserver 127.0.0.1:8000
+PORTA="$(.venv/bin/python manage.py porta_libera --da 8900)"
+URL="http://127.0.0.1:${PORTA}"
+echo "Novecento in avvio su $URL - premi CTRL+C per fermarla."
+( sleep 3; if command -v open >/dev/null 2>&1; then open "$URL"; elif command -v xdg-open >/dev/null 2>&1; then xdg-open "$URL"; fi ) &
+exec .venv/bin/python manage.py runserver "127.0.0.1:${PORTA}"
