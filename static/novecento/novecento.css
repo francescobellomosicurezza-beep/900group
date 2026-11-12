@@ -299,3 +299,7 @@ body {
   margin-top: .5rem;
 }
 .nv-esci { color: var(--nv-marrone); font-weight: 600; }
+
+/* Link nei colori del marchio */
+.nv-main a:not(.btn) { color: var(--nv-marrone); font-weight: 600; }
+.nv-main a:not(.btn):hover { color: var(--nv-oro); }
