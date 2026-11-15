@@ -511,3 +511,115 @@ class ConfigurazioneTest(TestCase):
     def test_email_di_prova_senza_destinatari(self):
         with self.assertRaises(CommandError):
             call_command("invia_email_prova", stdout=StringIO())
+
+
+class ListinoExcelTest(TestCase):
+    def _file(self, modifica):
+        from io import BytesIO
+
+        from openpyxl import load_workbook
+
+        from .listino_excel import esporta_listino
+
+        libro = load_workbook(BytesIO(esporta_listino()))
+        foglio = libro["Listino"]
+        modifica(foglio)
+        buffer = BytesIO()
+        libro.save(buffer)
+        buffer.seek(0)
+        buffer.name = "listino.xlsx"
+        return buffer
+
+    def _riga(self, foglio, descrizione):
+        for riga in foglio.iter_rows(min_row=2):
+            if riga[5].value == descrizione:
+                return riga
+        raise AssertionError(descrizione)
+
+    def test_esportazione_contiene_listino(self):
+        from io import BytesIO
+
+        from openpyxl import load_workbook
+
+        from .listino_excel import esporta_listino
+
+        libro = load_workbook(BytesIO(esporta_listino()))
+        self.assertEqual(libro.sheetnames, ["Listino", "Istruzioni"])
+        self.assertEqual(libro["Listino"].max_row, 1 + Articolo.objects.count())
+
+    def test_importazione_aggiorna_e_crea(self):
+        from .listino_excel import importa_listino
+
+        def modifica(foglio):
+            riga = self._riga(foglio, "Cono wafer 091")
+            riga[4].value = "NOCC-091"
+            riga[7].value = 6
+            riga[8].value = "0,045"
+            riga[9].value = 27.5
+            riga[10].value = 22
+            self._riga(foglio, "Sfere classiche")[11].value = "NO"
+            foglio.append([None, 1, "", "Coni speciali", "X1", "Cono al cacao", "CT", 4, None, None, 10, "SI"])
+            foglio.append([None, 8, "Bevande", "Acque", "", "Acqua naturale 0,5 l", "CT", 24, None, None, None, ""])
+
+        esito = importa_listino(self._file(modifica))
+        self.assertTrue(esito.riuscita, esito.errori)
+        self.assertEqual((esito.creati, esito.aggiornati), (2, 2))
+        wafer = Articolo.objects.get(nome="Cono wafer 091")
+        self.assertEqual(wafer.codice, "NOCC-091")
+        self.assertEqual(wafer.pezzi_per_cartone, 6)
+        self.assertEqual(str(wafer.prezzo_pezzo), "0.045")
+        self.assertEqual(str(wafer.prezzo_cartone), "27.50")
+        self.assertEqual(wafer.iva, 22)
+        self.assertEqual(wafer.confezione, "cartone da 6 pz")
+        self.assertFalse(Articolo.objects.get(nome="Sfere classiche").attivo)
+        nuovo = Articolo.objects.get(nome="Cono al cacao")
+        self.assertEqual(nuovo.gruppo.nome, "Coni speciali")
+        self.assertEqual(nuovo.gruppo.categoria.numero, 1)
+        self.assertEqual(Categoria.objects.get(numero=8).nome, "Bevande")
+
+    def test_errore_annulla_tutto(self):
+        from .listino_excel import importa_listino
+
+        def modifica(foglio):
+            self._riga(foglio, "Cono wafer 091")[4].value = "CAMBIATO"
+            self._riga(foglio, "Sacher")[6].value = "KG"
+            foglio.append([None, 99, "", "X", "", "Senza categoria", "CF", None, None, None, None, "SI"])
+
+        esito = importa_listino(self._file(modifica))
+        self.assertFalse(esito.riuscita)
+        self.assertEqual(len(esito.errori), 2)
+        self.assertIn("unità «KG» non valida", esito.errori[0])
+        self.assertIn("categoria 99 non esiste", esito.errori[1])
+        self.assertEqual(Articolo.objects.get(nome="Cono wafer 091").codice, "NOCC")
+
+    def test_file_non_valido(self):
+        from io import BytesIO
+
+        from .listino_excel import importa_listino
+
+        esito = importa_listino(BytesIO(b"non sono un excel"))
+        self.assertFalse(esito.riuscita)
+
+    def test_pagine_admin(self):
+        admin = get_user_model().objects.create_superuser("admin", password=PASSWORD)
+        self.client.force_login(admin)
+        r = self.client.get(reverse("admin:novecento_articolo_changelist"))
+        self.assertContains(r, "Esporta in Excel")
+        r = self.client.get(reverse("admin:novecento_articolo_esporta"))
+        self.assertEqual(r.status_code, 200)
+        self.assertIn("spreadsheetml", r["Content-Type"])
+
+        def modifica(foglio):
+            self._riga(foglio, "Sacher")[4].value = "SAC01"
+
+        r = self.client.post(
+            reverse("admin:novecento_articolo_importa"), {"file": self._file(modifica)}, follow=True
+        )
+        self.assertContains(r, "Listino importato")
+        self.assertEqual(Articolo.objects.get(nome="Sacher").codice, "SAC01")
+
+    def test_operatore_sede_non_accede(self):
+        utente = get_user_model().objects.create_user("spello2", password=PASSWORD)
+        self.client.force_login(utente)
+        r = self.client.get(reverse("admin:novecento_articolo_esporta"))
+        self.assertEqual(r.status_code, 302)

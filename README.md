@@ -39,6 +39,9 @@ funziona su iPhone e Android senza costi e senza servizi esterni.
   Per ogni articolo: codice, descrizione, unità di vendita (CT/CF/PZ), pezzi per
   cartone, prezzo al pezzo, prezzo per cartone, IVA. Gli articoli si modificano
   anche direttamente dall'elenco.
+- **Listino in Excel**: Articoli → «Esporta in Excel» scarica tutto il listino; si
+  modificano codici, prezzi, IVA o si aggiungono righe (ID vuoto) e si ricarica con
+  «Importa da Excel». Se una riga ha un errore non viene modificato nulla.
 - **Impostazioni**: indirizzi email che ricevono gli ordini.
 - **Ordini**: storico, PDF, reinvio email.
 

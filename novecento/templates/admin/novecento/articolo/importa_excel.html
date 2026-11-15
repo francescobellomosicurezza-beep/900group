@@ -1,0 +1,40 @@
+{% extends "admin/base_site.html" %}
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">Home</a> ›
+  <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a> ›
+  <a href="{% url 'admin:novecento_articolo_changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a> ›
+  Importa da Excel
+</div>
+{% endblock %}
+{% block content %}
+<div id="content-main">
+  <p>
+    1. <a href="{% url 'admin:novecento_articolo_esporta' %}"><strong>Scarica il listino attuale in Excel</strong></a>.<br>
+    2. Modificalo (codici, prezzi, nuovi articoli: istruzioni nel foglio «Istruzioni»).<br>
+    3. Caricalo qui sotto. Se c'è anche un solo errore non viene modificato nulla.
+  </p>
+
+  {% if esito and esito.errori %}
+    <div class="errornote">
+      Importazione annullata, nessuna modifica fatta. Correggi queste righe e riprova:
+      <ul>{% for errore in esito.errori|slice:":50" %}<li>{{ errore }}</li>{% endfor %}</ul>
+      {% if esito.errori|length > 50 %}<p>… e altri {{ esito.errori|length|add:"-50" }} errori.</p>{% endif %}
+    </div>
+  {% endif %}
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% if form.errors %}<p class="errornote">Controlla il file selezionato.</p>{% endif %}
+    <fieldset class="module aligned">
+      <div class="form-row">
+        {{ form.file.errors }}
+        <label class="required" for="{{ form.file.id_for_label }}">{{ form.file.label }}:</label>
+        {{ form.file }}
+        <div class="help">{{ form.file.help_text }}</div>
+      </div>
+    </fieldset>
+    <div class="submit-row"><input type="submit" value="Importa listino" class="default"></div>
+  </form>
+</div>
+{% endblock %}

@@ -2,11 +2,14 @@ from django import forms
 from django.contrib import admin, messages
 from django.contrib.auth import get_user_model, password_validation
 from django.http import HttpResponse
-from django.shortcuts import redirect
+from django.core.exceptions import PermissionDenied
+from django.shortcuts import redirect, render
+from django.utils import timezone
 from django.urls import path, reverse
 from django.utils.html import format_html
 
 from .models import GIORNI_SETTIMANA, Articolo, Categoria, Gruppo, Impostazioni, Ordine, RigaOrdine, Sede
+from .listino_excel import esporta_listino, importa_listino
 from .notifiche import invia_ordine
 from .pdf import genera_pdf_ordine, nome_file_pdf
 
@@ -157,6 +160,21 @@ class SedeAdmin(admin.ModelAdmin):
         return "—"
 
 
+class ImportaListinoForm(forms.Form):
+    file = forms.FileField(
+        label="File Excel (.xlsx)",
+        help_text="Usa il file scaricato con «Esporta in Excel», modificato e salvato.",
+    )
+
+    def clean_file(self):
+        file = self.cleaned_data["file"]
+        if not file.name.lower().endswith(".xlsx"):
+            raise forms.ValidationError("Carica un file Excel con estensione .xlsx")
+        if file.size > 5 * 1024 * 1024:
+            raise forms.ValidationError("File troppo grande (massimo 5 MB).")
+        return file
+
+
 class GruppoInline(admin.TabularInline):
     model = Gruppo
     extra = 1
@@ -227,6 +245,64 @@ class ArticoloAdmin(admin.ModelAdmin):
     search_fields = ["nome", "codice"]
     list_select_related = ["gruppo", "gruppo__categoria"]
     list_per_page = 100
+    change_list_template = "admin/novecento/articolo/change_list.html"
+
+    def get_urls(self):
+        extra = [
+            path(
+                "esporta-excel/",
+                self.admin_site.admin_view(self.esporta_excel),
+                name="novecento_articolo_esporta",
+            ),
+            path(
+                "importa-excel/",
+                self.admin_site.admin_view(self.importa_excel),
+                name="novecento_articolo_importa",
+            ),
+        ]
+        return extra + super().get_urls()
+
+    def esporta_excel(self, request):
+        if not self.has_view_permission(request):
+            raise PermissionDenied
+        risposta = HttpResponse(
+            esporta_listino(),
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+        nome = f"listino-novecento-{timezone.localdate():%Y%m%d}.xlsx"
+        risposta["Content-Disposition"] = f'attachment; filename="{nome}"'
+        return risposta
+
+    def importa_excel(self, request):
+        if not self.has_change_permission(request):
+            raise PermissionDenied
+        esito = None
+        if request.method == "POST":
+            form = ImportaListinoForm(request.POST, request.FILES)
+            if form.is_valid():
+                esito = importa_listino(form.cleaned_data["file"])
+                if esito.riuscita:
+                    self.message_user(
+                        request,
+                        f"Listino importato: {esito.creati} nuovi, {esito.aggiornati} aggiornati, "
+                        f"{esito.invariati} invariati.",
+                        messages.SUCCESS,
+                    )
+                    for voce in esito.categorie_create:
+                        self.message_user(request, f"Nuova categoria: {voce}", messages.INFO)
+                    for voce in esito.gruppi_creati:
+                        self.message_user(request, f"Nuova sottocategoria: {voce}", messages.INFO)
+                    return redirect("admin:novecento_articolo_changelist")
+        else:
+            form = ImportaListinoForm()
+        contesto = {
+            **self.admin_site.each_context(request),
+            "opts": self.model._meta,
+            "title": "Importa listino da Excel",
+            "form": form,
+            "esito": esito,
+        }
+        return render(request, "admin/novecento/articolo/importa_excel.html", contesto)
 
 
 @admin.register(Impostazioni)
