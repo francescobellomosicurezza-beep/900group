@@ -17,4 +17,5 @@ urlpatterns = [
     path("ordine/conferma/pdf/", views.pdf_ordine, name="pdf_ordine"),
     path("ordine/conferma/reinvia/", views.reinvia, name="reinvia"),
     path("ordine/annulla/", views.annulla, name="annulla"),
+    path("promemoria.ics", views.promemoria_calendario, name="promemoria"),
 ]

@@ -1,0 +1,17 @@
+{% if avviso_sede.orario_ordine and avviso_sede.giorni_ordine %}
+  <details class="nv-promemoria">
+    <summary>📅 Ricevi il promemoria sul telefono</summary>
+    <p>
+      Aggiunge al calendario del telefono un promemoria
+      <strong>{{ avviso_sede.giorni_display }}</strong> alle
+      <strong>{{ avviso_sede.orario_ordine|time:"H:i" }}</strong>,
+      con avviso {{ avviso_sede.preavviso_minuti }} minuti prima.
+    </p>
+    <a href="{% url 'novecento:promemoria' %}" class="btn btn-outline-nv w-100">Aggiungi al calendario</a>
+    <p class="small text-muted mt-2 mb-0">
+      iPhone: tocca il pulsante e poi «Aggiungi tutto».
+      Android: apri il file scaricato e scegli l'app Calendario.
+      Va fatto una sola volta per telefono.
+    </p>
+  </details>
+{% endif %}

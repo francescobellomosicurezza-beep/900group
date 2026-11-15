@@ -27,6 +27,8 @@
   <dt>Articoli</dt><dd>{{ righe|length }}</dd>
 </dl>
 
+{% include "novecento/_pulsante_promemoria.html" %}
+
 <div class="d-grid gap-2 nv-actions">
   <a href="{% url 'novecento:pdf_ordine' %}" target="_blank" class="btn btn-outline-nv btn-lg">Visualizza PDF</a>
   <a href="{% url 'novecento:scelta_sede' %}" class="btn btn-nv btn-lg">Nuovo ordine</a>

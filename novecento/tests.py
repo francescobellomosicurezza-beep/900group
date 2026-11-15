@@ -1,3 +1,4 @@
+import datetime
 import json
 from io import StringIO
 
@@ -7,6 +8,7 @@ from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.test import TestCase, override_settings
 from django.urls import reverse
+from django.utils import timezone
 
 from .admin import SedeAdminForm
 from .models import Articolo, Categoria, Gruppo, Impostazioni, Ordine, Sede
@@ -296,6 +298,7 @@ class CredenzialiSedeTest(TestCase):
             "email": "",
             "attiva": "on",
             "ordine": "0",
+            "preavviso_minuti": "30",
         }
         dati.update(extra)
         return dati
@@ -381,3 +384,94 @@ class PortaLiberaTest(TestCase):
             out = StringIO()
             call_command("porta_libera", "--da", str(porta), stdout=out)
             self.assertNotEqual(int(out.getvalue()), porta)
+
+
+class AvvisoOrdineTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.account = get_user_model().objects.create_user("assisi", password=PASSWORD)
+        cls.sede = Sede.objects.create(
+            nome="Assisi",
+            slug="assisi",
+            account=cls.account,
+            orario_ordine=datetime.time(10, 0),
+            giorni_ordine="012345",
+            preavviso_minuti=30,
+        )
+
+    def _alle(self, anno, mese, giorno, ora, minuto):
+        return timezone.make_aware(datetime.datetime(anno, mese, giorno, ora, minuto))
+
+    def test_stati_ordine(self):
+        lunedi = (2026, 11, 16)
+        stato = self.sede.stato_ordine(self._alle(*lunedi, 8, 0))
+        self.assertEqual(stato["stato"], "da_fare")
+        self.assertEqual(stato["minuti"], 120)
+        self.assertFalse(stato["urgente"])
+        self.assertTrue(self.sede.stato_ordine(self._alle(*lunedi, 9, 45))["urgente"])
+        stato = self.sede.stato_ordine(self._alle(*lunedi, 10, 20))
+        self.assertEqual((stato["stato"], stato["ritardo"]), ("in_ritardo", 20))
+        domenica = (2026, 11, 15)
+        self.assertIsNone(self.sede.stato_ordine(self._alle(*domenica, 9, 0)))
+
+    def test_ordine_inviato_oggi(self):
+        Ordine.objects.create(sede=self.sede, nome="Anna", cognome="Verdi")
+        stato = self.sede.stato_ordine()
+        self.assertEqual(stato["stato"], "inviato")
+
+    def test_senza_orario_nessun_avviso(self):
+        self.sede.orario_ordine = None
+        self.assertIsNone(self.sede.stato_ordine(self._alle(2026, 11, 16, 9, 0)))
+
+    def test_avviso_mostrato_in_app(self):
+        self.client.force_login(self.account)
+        r = self.client.get(reverse("novecento:scelta_sede"), follow=True)
+        oggi_previsto = self.sede.ordina_il(timezone.localdate())
+        if oggi_previsto:
+            self.assertContains(r, "10:00")
+        Ordine.objects.create(sede=self.sede, nome="Anna", cognome="Verdi")
+        r = self.client.get(reverse("novecento:operatore"))
+        self.assertContains(r, "Ordine di oggi inviato")
+
+    def test_promemoria_calendario(self):
+        self.client.force_login(self.account)
+        r = self.client.get(reverse("novecento:promemoria"))
+        self.assertEqual(r.status_code, 200)
+        self.assertIn("text/calendar", r["Content-Type"])
+        testo = r.content.decode()
+        self.assertIn("RRULE:FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA", testo)
+        self.assertIn("T093000", testo)
+        self.assertIn("T100000", testo)
+        self.assertIn("BEGIN:VALARM", testo)
+        self.assertIn("Ordine 900 Assisi entro le 10:00", testo)
+        for riga in testo.split("\r\n"):
+            self.assertLessEqual(len(riga.encode()), 75)
+
+    def test_promemoria_senza_orario(self):
+        self.sede.orario_ordine = None
+        self.sede.save()
+        self.client.force_login(self.account)
+        r = self.client.get(reverse("novecento:promemoria"))
+        self.assertEqual(r.status_code, 302)
+
+    def test_admin_salva_giorni(self):
+        form = SedeAdminForm(
+            {
+                "nome": "Assisi",
+                "slug": "assisi",
+                "indirizzo": "",
+                "email": "",
+                "attiva": "on",
+                "ordine": "0",
+                "orario_ordine": "09:30",
+                "preavviso_minuti": "15",
+                "giorni": ["0", "2", "4"],
+                "username": "assisi",
+            },
+            instance=self.sede,
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+        sede = form.save()
+        self.assertEqual(sede.giorni_ordine, "024")
+        self.assertEqual(sede.giorni_display(), "Lun, Mer, Ven")
+        self.assertEqual(sede.orario_ordine, datetime.time(9, 30))

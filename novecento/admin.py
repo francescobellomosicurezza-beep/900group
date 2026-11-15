@@ -6,7 +6,7 @@ from django.shortcuts import redirect
 from django.urls import path, reverse
 from django.utils.html import format_html
 
-from .models import Articolo, Categoria, Gruppo, Impostazioni, Ordine, RigaOrdine, Sede
+from .models import GIORNI_SETTIMANA, Articolo, Categoria, Gruppo, Impostazioni, Ordine, RigaOrdine, Sede
 from .notifiche import invia_ordine
 from .pdf import genera_pdf_ordine, nome_file_pdf
 
@@ -31,14 +31,32 @@ class SedeAdminForm(forms.ModelForm):
         help_text="Scollega e disattiva l'account: il punto vendita non potrà più accedere.",
     )
 
+    giorni = forms.MultipleChoiceField(
+        label="Giorni dell'ordine",
+        choices=GIORNI_SETTIMANA,
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+    )
+
     class Meta:
         model = Sede
-        fields = ["nome", "slug", "indirizzo", "email", "attiva", "ordine"]
+        fields = [
+            "nome",
+            "slug",
+            "indirizzo",
+            "email",
+            "attiva",
+            "ordine",
+            "orario_ordine",
+            "preavviso_minuti",
+        ]
+        widgets = {"orario_ordine": forms.TimeInput(attrs={"type": "time"}, format="%H:%M")}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.instance.pk and self.instance.account_id:
             self.fields["username"].initial = self.instance.account.username
+        self.fields["giorni"].initial = list(self.instance.giorni_ordine or "")
 
     def clean(self):
         cleaned = super().clean()
@@ -70,6 +88,7 @@ class SedeAdminForm(forms.ModelForm):
 
     def save(self, commit=True):
         sede = super().save(commit=False)
+        sede.giorni_ordine = "".join(sorted(self.cleaned_data.get("giorni") or []))
         Utente = get_user_model()
         account = sede.account if sede.account_id else None
         username = self.cleaned_data.get("username")
@@ -98,7 +117,15 @@ class SedeAdminForm(forms.ModelForm):
 @admin.register(Sede)
 class SedeAdmin(admin.ModelAdmin):
     form = SedeAdminForm
-    list_display = ["nome", "indirizzo", "email", "username_accesso", "attiva", "ordine"]
+    list_display = [
+        "nome",
+        "username_accesso",
+        "orario_ordine",
+        "giorni_ordine_display",
+        "email",
+        "attiva",
+        "ordine",
+    ]
     list_editable = ["attiva", "ordine"]
     list_select_related = ["account"]
     prepopulated_fields = {"slug": ["nome"]}
@@ -106,10 +133,22 @@ class SedeAdmin(admin.ModelAdmin):
     fieldsets = [
         (None, {"fields": ["nome", "slug", "indirizzo", "email", "attiva", "ordine"]}),
         (
+            "Orario dell'ordine",
+            {
+                "fields": ["orario_ordine", "giorni", "preavviso_minuti"],
+                "description": "La sede vede un avviso nell'app e può aggiungere "
+                "il promemoria al calendario del telefono.",
+            },
+        ),
+        (
             "Credenziali del punto vendita",
             {"fields": ["username", "nuova_password", "disattiva_account"]},
         ),
     ]
+
+    @admin.display(description="giorni")
+    def giorni_ordine_display(self, obj):
+        return obj.giorni_display()
 
     @admin.display(description="username accesso")
     def username_accesso(self, obj):

@@ -21,6 +21,17 @@ Web app Django per gli ordini giornalieri dei punti vendita Gelateria Novecento
    (codice, articolo, quantità, unità) e spedito via email al laboratorio
    (in copia all'email della sede, se impostata). L'ordine resta nello storico.
 
+## Orario dell'ordine e promemoria
+In `/admin/` → Sedi, per ogni punto vendita si impostano **orario limite**, **giorni**
+e **minuti di preavviso**. La sede vede in ogni pagina un avviso:
+- giallo: ordine da inviare entro l'orario (lampeggia nel preavviso);
+- rosso: ordine in ritardo;
+- verde: ordine di oggi già inviato (ora e operatore).
+
+Con «Ricevi il promemoria sul telefono» la sede scarica un evento ricorrente (.ics)
+da aggiungere al calendario del telefono, con avviso prima dell'orario e alla scadenza:
+funziona su iPhone e Android senza costi e senza servizi esterni.
+
 ## Amministrazione (`/admin/`)
 - **Sedi**: aggiunta di nuovi punti vendita, email in copia, credenziali di accesso
   (username, nuova password, disattivazione account).

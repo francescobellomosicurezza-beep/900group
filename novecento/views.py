@@ -14,6 +14,7 @@ from .forms import CategoriaForm, OperatoreForm, RiepilogoForm, SedeForm
 from .models import Articolo, Categoria, Gruppo, Ordine, RigaOrdine, Sede
 from .notifiche import invia_ordine
 from .pdf import genera_pdf_ordine, nome_file_pdf
+from .promemoria import calendario_promemoria
 
 CHIAVE_BOZZA = "ordine_bozza"
 CHIAVE_ULTIMO = "ultimo_ordine_id"
@@ -504,3 +505,20 @@ def annulla(request):
     request.session.pop(CHIAVE_BOZZA, None)
     messages.info(request, "Ordine annullato.")
     return redirect("novecento:scelta_sede")
+
+
+@login_required
+def promemoria_calendario(request):
+    """Scarica il promemoria ricorrente da aggiungere al calendario del telefono."""
+    sede = Sede.per_utente(request.user)
+    if sede is None and _puo_scegliere_sede(request.user):
+        sede = _sede_bozza(request, _bozza(request))
+    if sede is None:
+        return redirect("novecento:scelta_sede")
+    if not sede.orario_ordine or not sede.giorni_ordine:
+        messages.info(request, "Per questa sede non è impostato un orario d'ordine.")
+        return redirect("novecento:categorie")
+    contenuto = calendario_promemoria(sede, request.build_absolute_uri("/"))
+    risposta = HttpResponse(contenuto, content_type="text/calendar; charset=utf-8")
+    risposta["Content-Disposition"] = f'attachment; filename="promemoria-ordine-{sede.slug}.ics"'
+    return risposta

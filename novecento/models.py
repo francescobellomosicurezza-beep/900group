@@ -1,6 +1,19 @@
+import datetime
+
 from django.conf import settings
-from django.core.validators import MinValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.utils import timezone
+
+GIORNI_SETTIMANA = [
+    ("0", "Lunedì"),
+    ("1", "Martedì"),
+    ("2", "Mercoledì"),
+    ("3", "Giovedì"),
+    ("4", "Venerdì"),
+    ("5", "Sabato"),
+    ("6", "Domenica"),
+]
 
 
 class Sede(models.Model):
@@ -20,6 +33,25 @@ class Sede(models.Model):
         blank=True,
         related_name="sede",
     )
+    orario_ordine = models.TimeField(
+        "ordine da inviare entro le",
+        null=True,
+        blank=True,
+        help_text="Lasciare vuoto per non mostrare avvisi.",
+    )
+    giorni_ordine = models.CharField(
+        "giorni dell'ordine",
+        max_length=7,
+        default="0123456",
+        blank=True,
+        help_text="Giorni della settimana in cui la sede deve ordinare.",
+    )
+    preavviso_minuti = models.PositiveSmallIntegerField(
+        "preavviso (minuti)",
+        default=30,
+        validators=[MaxValueValidator(720)],
+        help_text="Quanto prima dell'orario suona il promemoria sul telefono.",
+    )
     attiva = models.BooleanField("attiva", default=True)
     ordine = models.PositiveSmallIntegerField("ordine di visualizzazione", default=0)
 
@@ -36,6 +68,42 @@ class Sede(models.Model):
         """Sede collegata all'account, se attiva."""
         sede = getattr(utente, "sede", None)
         return sede if sede is not None and sede.attiva else None
+
+    def ordina_il(self, data):
+        return str(data.weekday()) in (self.giorni_ordine or "")
+
+    def giorni_display(self):
+        etichette = dict(GIORNI_SETTIMANA)
+        giorni = [etichette[g][:3] for g in sorted(set(self.giorni_ordine or "")) if g in etichette]
+        if len(giorni) == 7:
+            return "tutti i giorni"
+        return ", ".join(giorni) or "nessun giorno"
+
+    def stato_ordine(self, adesso=None):
+        """Stato dell'ordine di oggi per l'avviso in app, oppure None se non previsto."""
+        adesso = timezone.localtime(adesso or timezone.now())
+        oggi = adesso.date()
+        inviato = (
+            self.ordini.filter(creato_il__date=oggi).order_by("creato_il").first()
+            if self.pk
+            else None
+        )
+        if inviato:
+            return {"stato": "inviato", "ordine": inviato, "ora": timezone.localtime(inviato.creato_il)}
+        if not self.orario_ordine or not self.ordina_il(oggi):
+            return None
+        scadenza = timezone.make_aware(
+            datetime.datetime.combine(oggi, self.orario_ordine), adesso.tzinfo
+        )
+        minuti = int((scadenza - adesso).total_seconds() // 60)
+        if minuti < 0:
+            return {"stato": "in_ritardo", "scadenza": scadenza, "ritardo": -minuti}
+        return {
+            "stato": "da_fare",
+            "scadenza": scadenza,
+            "minuti": minuti,
+            "urgente": minuti <= self.preavviso_minuti,
+        }
 
 
 class Categoria(models.Model):

@@ -1,3 +1,5 @@
+import datetime
+
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand, CommandError
@@ -32,6 +34,9 @@ class Command(BaseCommand):
             righe.append(("Amministratore", "admin", PASSWORD_ADMIN if creato else "(invariata)"))
 
             for sede in Sede.objects.filter(attiva=True):
+                if sede.orario_ordine is None:
+                    sede.orario_ordine = datetime.time(10, 0)
+                    sede.save(update_fields=["orario_ordine"])
                 if sede.account_id:
                     righe.append((sede.nome, sede.account.username, "(invariata)"))
                     continue

@@ -530,3 +530,50 @@ body {
     border-color: var(--nv-marrone);
   }
 }
+
+/* Avviso ordine del giorno */
+.nv-avviso {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  border-radius: 1rem;
+  padding: .75rem 1rem;
+  margin-bottom: 1rem;
+  font-size: .95rem;
+  border: 2px solid transparent;
+}
+.nv-avviso-icona {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: var(--nv-bianco);
+}
+.nv-avviso.info { background: #FBF5E6; border-color: #EAD9A8; color: var(--nv-marrone); }
+.nv-avviso.info .nv-avviso-icona { background: var(--nv-oro); }
+.nv-avviso.urgente { background: #FFF1D6; border-color: #E5A72B; color: #6B4300; }
+.nv-avviso.urgente .nv-avviso-icona { background: #E5A72B; animation: nv-batti 1.6s ease-in-out infinite; }
+.nv-avviso.ko { background: #FBE7E3; border-color: #D9826F; color: #7A2414; }
+.nv-avviso.ko .nv-avviso-icona { background: #B5452F; }
+.nv-avviso.ok { background: #E7F3EB; border-color: #9CCBAA; color: #1F5A33; }
+.nv-avviso.ok .nv-avviso-icona { background: #3C8D5A; }
+@keyframes nv-batti { 50% { transform: scale(1.15); } }
+
+/* Promemoria calendario */
+.nv-promemoria {
+  background: var(--nv-bianco);
+  border: 1px dashed var(--nv-crema-scura);
+  border-radius: 1rem;
+  padding: .75rem 1rem;
+  margin: 1rem 0;
+}
+.nv-promemoria summary { cursor: pointer; font-weight: 600; color: var(--nv-marrone); }
+.nv-promemoria p { font-size: .9rem; margin: .6rem 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .nv-avviso.urgente .nv-avviso-icona { animation: none; }
+}
