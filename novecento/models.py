@@ -39,55 +39,156 @@ class Sede(models.Model):
 
 
 class Categoria(models.Model):
-    nome = models.CharField("nome", max_length=100, unique=True)
-    descrizione = models.CharField("descrizione", max_length=255, blank=True)
-    ordine = models.PositiveSmallIntegerField("ordine di visualizzazione", default=0)
+    """Macrocategoria del listino (es. 1 - Accessori gelateria e yogurteria)."""
+
+    numero = models.PositiveSmallIntegerField("numero", unique=True)
+    nome = models.CharField("nome", max_length=120, unique=True)
+    descrizione = models.CharField(
+        "descrizione",
+        max_length=255,
+        blank=True,
+        help_text="Esempi di contenuto, mostrati sotto il nome.",
+    )
+    icona = models.CharField(
+        "icona", max_length=8, blank=True, help_text="Un'emoji, es. 🍦"
+    )
     attiva = models.BooleanField("attiva", default=True)
 
     class Meta:
         verbose_name = "categoria"
         verbose_name_plural = "categorie"
-        ordering = ["ordine", "nome"]
+        ordering = ["numero"]
 
     def __str__(self):
-        return self.nome
+        return f"{self.numero} - {self.nome}"
 
 
-class Articolo(models.Model):
-    class Unita(models.TextChoices):
-        PEZZI = "pz", "pezzi"
-        CONFEZIONI = "conf", "confezioni"
-        CARTONI = "cartoni", "cartoni"
-        VASCHETTE = "vaschette", "vaschette"
-        KG = "kg", "kg"
-        LITRI = "litri", "litri"
+class Gruppo(models.Model):
+    """Sottocategoria che raggruppa le varianti di uno stesso prodotto (es. Coni)."""
 
     categoria = models.ForeignKey(
         Categoria,
         verbose_name="categoria",
+        on_delete=models.CASCADE,
+        related_name="gruppi",
+    )
+    nome = models.CharField("nome", max_length=120)
+    ordine = models.PositiveSmallIntegerField("ordine di visualizzazione", default=0)
+    attivo = models.BooleanField("attivo", default=True)
+
+    class Meta:
+        verbose_name = "sottocategoria"
+        verbose_name_plural = "sottocategorie"
+        ordering = ["categoria__numero", "ordine", "nome"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["categoria", "nome"], name="gruppo_unico_per_categoria"
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.categoria.nome} › {self.nome}"
+
+
+class Articolo(models.Model):
+    class Unita(models.TextChoices):
+        CARTONE = "CT", "cartone"
+        CONFEZIONE = "CF", "confezione"
+        PEZZO = "PZ", "pezzo"
+
+    class Iva(models.IntegerChoices):
+        QUATTRO = 4, "4%"
+        CINQUE = 5, "5%"
+        DIECI = 10, "10%"
+        VENTIDUE = 22, "22%"
+
+    gruppo = models.ForeignKey(
+        Gruppo,
+        verbose_name="sottocategoria",
         on_delete=models.PROTECT,
         related_name="articoli",
     )
-    nome = models.CharField("nome", max_length=150)
-    descrizione = models.CharField("descrizione", max_length=255, blank=True)
+    codice = models.CharField("codice", max_length=30, blank=True)
+    nome = models.CharField("descrizione", max_length=150)
     unita = models.CharField(
-        "unità di misura", max_length=20, choices=Unita.choices, default=Unita.PEZZI
+        "unità di vendita", max_length=2, choices=Unita.choices, default=Unita.CONFEZIONE
     )
+    pezzi_per_cartone = models.PositiveIntegerField("pezzi per cartone", null=True, blank=True)
+    prezzo_pezzo = models.DecimalField(
+        "prezzo al pezzo (€)",
+        max_digits=9,
+        decimal_places=3,
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(0)],
+    )
+    prezzo_cartone = models.DecimalField(
+        "prezzo per cartone (€)",
+        max_digits=9,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(0)],
+    )
+    iva = models.PositiveSmallIntegerField("IVA", choices=Iva.choices, null=True, blank=True)
     attivo = models.BooleanField("attivo", default=True)
     ordine = models.PositiveSmallIntegerField("ordine di visualizzazione", default=0)
 
     class Meta:
         verbose_name = "articolo"
         verbose_name_plural = "articoli"
-        ordering = ["categoria__ordine", "ordine", "nome"]
+        ordering = ["gruppo__categoria__numero", "gruppo__ordine", "ordine", "nome"]
         constraints = [
-            models.UniqueConstraint(
-                fields=["categoria", "nome"], name="articolo_unico_per_categoria"
-            )
+            models.UniqueConstraint(fields=["gruppo", "nome"], name="articolo_unico_per_gruppo")
         ]
 
     def __str__(self):
-        return f"{self.nome} ({self.get_unita_display()})"
+        return self.nome
+
+    PLURALI = {"CT": "cartoni", "CF": "confezioni", "PZ": "pezzi"}
+
+    def unita_per_quantita(self, quantita):
+        """Unità concordata con la quantità: 1 cartone, 2 cartoni."""
+        return self.get_unita_display() if quantita == 1 else self.PLURALI[self.unita]
+
+    @property
+    def confezione(self):
+        """Descrizione breve della confezione, es. 'cartone da 6 pz'."""
+        testo = self.get_unita_display()
+        if self.unita == self.Unita.CARTONE and self.pezzi_per_cartone:
+            testo += f" da {self.pezzi_per_cartone} pz"
+        return testo
+
+
+class Impostazioni(models.Model):
+    """Impostazioni modificabili dal pannello admin (record unico)."""
+
+    email_destinatari = models.TextField(
+        "email che ricevono gli ordini",
+        blank=True,
+        help_text="Uno o più indirizzi separati da virgola o a capo. "
+        "Se vuoto si usa la configurazione del server.",
+    )
+
+    class Meta:
+        verbose_name = "impostazioni"
+        verbose_name_plural = "impostazioni"
+
+    def __str__(self):
+        return "Impostazioni ordini"
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def corrente(cls):
+        impostazioni, _ = cls.objects.get_or_create(pk=1)
+        return impostazioni
+
+    def destinatari(self):
+        testo = self.email_destinatari.replace("\n", ",").replace(";", ",")
+        return [e.strip() for e in testo.split(",") if e.strip()]
 
 
 class Ordine(models.Model):
@@ -146,9 +247,11 @@ class RigaOrdine(models.Model):
         null=True,
         related_name="righe_ordine",
     )
-    categoria_nome = models.CharField("categoria", max_length=100)
+    categoria_nome = models.CharField("categoria", max_length=130)
+    gruppo_nome = models.CharField("sottocategoria", max_length=120, blank=True)
+    codice = models.CharField("codice", max_length=30, blank=True)
     articolo_nome = models.CharField("articolo", max_length=150)
-    unita = models.CharField("unità di misura", max_length=20)
+    unita = models.CharField("unità di vendita", max_length=20)
     quantita = models.PositiveIntegerField("quantità", validators=[MinValueValidator(1)])
 
     class Meta:

@@ -114,31 +114,43 @@ def genera_pdf_ordine(ordine):
     elementi += [intestazione, Spacer(1, 6 * mm)]
 
     righe = list(ordine.righe.all())
-    for categoria, gruppo in groupby(righe, key=lambda r: r.categoria_nome):
-        dati = [["Articolo", "Quantità", "Unità"]]
-        for riga in gruppo:
-            dati.append(
-                [Paragraph(escape(riga.articolo_nome), stili["normale"]), riga.quantita, riga.unita]
-            )
-        tabella = Table(dati, colWidths=[None, 25 * mm, 30 * mm], repeatRows=1)
-        tabella.setStyle(
-            TableStyle(
-                [
-                    ("BACKGROUND", (0, 0), (-1, 0), MARRONE),
-                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-                    ("FONTNAME", (0, 1), (-1, -1), "Helvetica"),
-                    ("FONTSIZE", (0, 0), (-1, -1), 10),
-                    ("ALIGN", (1, 0), (1, -1), "CENTER"),
-                    ("FONTNAME", (1, 1), (1, -1), "Helvetica-Bold"),
-                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                    ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, CREMA]),
-                    ("GRID", (0, 0), (-1, -1), 0.4, GRIGIO),
-                    ("TOPPADDING", (0, 0), (-1, -1), 4),
-                    ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+    for categoria, righe_categoria in groupby(righe, key=lambda r: r.categoria_nome):
+        dati = [["Codice", "Articolo", "Q.tà", "Unità"]]
+        stile = [
+            ("BACKGROUND", (0, 0), (-1, 0), MARRONE),
+            ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+            ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+            ("FONTNAME", (0, 1), (-1, -1), "Helvetica"),
+            ("FONTSIZE", (0, 0), (-1, -1), 9.5),
+            ("ALIGN", (2, 0), (2, -1), "CENTER"),
+            ("FONTNAME", (2, 1), (2, -1), "Helvetica-Bold"),
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            ("GRID", (0, 0), (-1, -1), 0.4, GRIGIO),
+            ("TOPPADDING", (0, 0), (-1, -1), 4),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+        ]
+        for gruppo, righe_gruppo in groupby(righe_categoria, key=lambda r: r.gruppo_nome):
+            if gruppo:
+                indice = len(dati)
+                dati.append([gruppo.upper(), "", "", ""])
+                stile += [
+                    ("SPAN", (0, indice), (-1, indice)),
+                    ("BACKGROUND", (0, indice), (-1, indice), CREMA),
+                    ("FONTNAME", (0, indice), (-1, indice), "Helvetica-Bold"),
+                    ("TEXTCOLOR", (0, indice), (-1, indice), MARRONE),
+                    ("FONTSIZE", (0, indice), (-1, indice), 8.5),
                 ]
-            )
-        )
+            for riga in righe_gruppo:
+                dati.append(
+                    [
+                        riga.codice,
+                        Paragraph(escape(riga.articolo_nome), stili["normale"]),
+                        riga.quantita,
+                        riga.unita,
+                    ]
+                )
+        tabella = Table(dati, colWidths=[22 * mm, None, 16 * mm, 38 * mm], repeatRows=1)
+        tabella.setStyle(TableStyle(stile))
         elementi.append(
             KeepTogether([Paragraph(escape(categoria.upper()), stili["categoria"]), tabella])
         )

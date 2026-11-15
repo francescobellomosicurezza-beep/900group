@@ -1,0 +1,11 @@
+<div class="nv-carrello" id="nv-carrello">
+  <div class="nv-carrello-info">
+    <span class="nv-carrello-numero" data-carrello-totale>{{ articoli_selezionati }}</span>
+    <span class="nv-carrello-testo">articoli<br>nell'ordine</span>
+  </div>
+  {% if pulsante_form %}
+    <button type="submit" name="vai" value="riepilogo" class="btn btn-nv btn-lg">Riepilogo ›</button>
+  {% else %}
+    <a href="{% url 'novecento:riepilogo' %}" class="btn btn-nv btn-lg">Riepilogo ›</a>
+  {% endif %}
+</div>

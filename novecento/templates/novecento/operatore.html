@@ -11,6 +11,21 @@
   </div>
 {% endif %}
 
+{% if operatori_recenti %}
+  <p class="fw-semibold mb-2">Sei tu?</p>
+  <div class="nv-operatori mb-4">
+    {% for op in operatori_recenti %}
+      <form method="post" class="d-inline">
+        {% csrf_token %}
+        <input type="hidden" name="nome" value="{{ op.nome }}">
+        <input type="hidden" name="cognome" value="{{ op.cognome }}">
+        <button type="submit" class="nv-chip">{{ op.nome }} {{ op.cognome }}</button>
+      </form>
+    {% endfor %}
+  </div>
+  <p class="text-muted small mb-2">Oppure inserisci il tuo nome:</p>
+{% endif %}
+
 <form method="post" novalidate>
   {% csrf_token %}
   <div class="mb-3">

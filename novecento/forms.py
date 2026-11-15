@@ -54,7 +54,10 @@ class CategoriaForm(forms.Form):
                         "class": "form-control text-center qty-input",
                         "inputmode": "numeric",
                         "min": "0",
+                        "max": "9999",
                         "step": "1",
+                        "data-articolo": str(articolo.pk),
+                        "aria-label": f"Quantità {articolo.nome}",
                     }
                 ),
             )

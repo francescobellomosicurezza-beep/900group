@@ -303,3 +303,230 @@ body {
 /* Link nei colori del marchio */
 .nv-main a:not(.btn) { color: var(--nv-marrone); font-weight: 600; }
 .nv-main a:not(.btn):hover { color: var(--nv-oro); }
+
+/* ===== Ordine guidato ===== */
+.nv-title-sm {
+  font-size: 1.45rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .6rem;
+  text-align: left;
+}
+.nv-briciole {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: .5rem;
+  font-size: .85rem;
+  margin-bottom: .25rem;
+}
+.nv-briciole span { color: #7d6d63; text-align: right; }
+
+.nv-categoria-numero {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 50%;
+  background: var(--nv-marrone);
+  color: var(--nv-oro);
+  font-family: "Oswald", sans-serif;
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+.nv-subtitle .nv-categoria-numero { width: 1.7rem; height: 1.7rem; font-size: .9rem; }
+
+/* Elenco macrocategorie */
+.nv-categorie { display: grid; gap: .6rem; }
+.nv-categoria-card {
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+  background: var(--nv-bianco);
+  border: 2px solid var(--nv-crema-scura);
+  border-radius: 1rem;
+  padding: .85rem .9rem;
+  color: var(--nv-testo);
+  text-decoration: none;
+  transition: border-color .15s, transform .1s;
+}
+.nv-main a.nv-categoria-card { font-weight: 400; color: var(--nv-testo); }
+.nv-categoria-card:hover { border-color: var(--nv-oro); }
+.nv-categoria-card:active { transform: scale(.99); }
+.nv-categoria-card.selected { border-color: var(--nv-oro); background: #FFFDF8; }
+.nv-categoria-testo { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.nv-categoria-nome {
+  font-family: "Oswald", sans-serif;
+  text-transform: uppercase;
+  color: var(--nv-marrone);
+  font-size: 1.05rem;
+  line-height: 1.2;
+  letter-spacing: .02em;
+}
+.nv-categoria-desc { font-size: .8rem; color: #7d6d63; }
+.nv-categoria-stato { display: flex; align-items: center; gap: .4rem; flex-shrink: 0; }
+.nv-categoria-tot { font-size: .8rem; color: #9a8a80; }
+.nv-chevron { font-size: 1.6rem; color: var(--nv-marrone); line-height: 1; }
+.nv-pill {
+  background: var(--nv-oro);
+  color: var(--nv-bianco);
+  border-radius: 999px;
+  padding: .1rem .55rem;
+  font-size: .75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Ripeti ultimo ordine */
+.nv-ripeti {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  background: var(--nv-crema-scura);
+  border-radius: 1rem;
+  padding: .75rem .9rem;
+}
+.nv-ripeti div { display: flex; flex-direction: column; font-size: .9rem; color: var(--nv-marrone); }
+.nv-ripeti span { font-size: .8rem; color: #7d6d63; }
+
+/* Sottocategorie a fisarmonica */
+.nv-gruppo {
+  background: var(--nv-bianco);
+  border: 1px solid var(--nv-crema-scura);
+  border-radius: 1rem;
+  margin-bottom: .6rem;
+  overflow: hidden;
+}
+.nv-gruppo > summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+  padding: .9rem 1rem;
+  cursor: pointer;
+  user-select: none;
+}
+.nv-gruppo > summary::-webkit-details-marker { display: none; }
+.nv-gruppo > summary::after {
+  content: "›";
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--nv-marrone);
+  transform: rotate(90deg);
+  transition: transform .2s;
+  margin-left: .25rem;
+}
+.nv-gruppo[open] > summary::after { transform: rotate(-90deg); }
+.nv-gruppo[open] > summary { border-bottom: 1px solid var(--nv-crema-scura); background: #FBF8F4; }
+.nv-gruppo-nome {
+  font-family: "Oswald", sans-serif;
+  text-transform: uppercase;
+  color: var(--nv-marrone);
+  font-size: 1.05rem;
+  letter-spacing: .03em;
+}
+.nv-gruppo-stato { margin-left: auto; display: flex; align-items: center; gap: .5rem; }
+.nv-gruppo-tot { font-size: .75rem; color: #9a8a80; }
+.nv-gruppo .nv-articoli { padding: .5rem; margin: 0; }
+.nv-gruppo .nv-articolo:last-child { margin-bottom: 0; }
+
+.nv-articolo-meta { display: block; font-size: .78rem; color: #7d6d63; }
+.nv-codice {
+  display: inline-block;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: .7rem;
+  background: var(--nv-crema);
+  color: var(--nv-marrone);
+  border-radius: .3rem;
+  padding: 0 .3rem;
+  margin-right: .25rem;
+}
+.nv-ultima { display: block; font-size: .75rem; color: var(--nv-oro); font-weight: 600; }
+
+/* Navigazione tra categorie */
+.nv-nav-categorie { display: flex; gap: .5rem; margin: 1rem 0; }
+.nv-nav-categorie > span { width: 3.2rem; }
+
+/* Barra carrello fissa */
+.nv-carrello {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: .7rem 1rem calc(.7rem + env(safe-area-inset-bottom));
+  background: var(--nv-bianco);
+  border-top: 3px solid var(--nv-oro);
+  box-shadow: 0 -6px 18px rgba(78, 46, 34, .12);
+  border-radius: 1rem 1rem 0 0;
+}
+.nv-carrello-info { display: flex; align-items: center; gap: .6rem; }
+.nv-carrello-numero {
+  font-family: "Oswald", sans-serif;
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--nv-marrone);
+  line-height: 1;
+}
+.nv-carrello-testo { font-size: .75rem; color: #7d6d63; line-height: 1.15; }
+.nv-carrello.pulse .nv-carrello-numero { animation: nv-pulse .35s ease; }
+@keyframes nv-pulse { 50% { transform: scale(1.25); color: var(--nv-oro); } }
+.nv-main { padding-bottom: 7.5rem; }
+
+/* Operatori recenti */
+.nv-operatori { display: flex; flex-wrap: wrap; gap: .5rem; }
+.nv-chip {
+  border: 2px solid var(--nv-marrone);
+  background: var(--nv-bianco);
+  color: var(--nv-marrone);
+  border-radius: 999px;
+  padding: .45rem 1rem;
+  font-weight: 600;
+}
+.nv-chip:hover, .nv-chip:focus-visible { background: var(--nv-marrone); color: var(--nv-bianco); }
+
+/* Riepilogo */
+.nv-riepilogo-cat { margin-bottom: 1.25rem; }
+.nv-riepilogo-cat-head { display: flex; justify-content: space-between; align-items: baseline; gap: .5rem; }
+.nv-riepilogo-cat-head .nv-subtitle { flex: 1; display: flex; align-items: center; gap: .5rem; }
+.nv-riepilogo-gruppo {
+  font-size: .8rem;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: #7d6d63;
+  margin: .6rem 0 .3rem;
+}
+
+.nv-avviso-rete {
+  position: fixed;
+  top: .5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  max-width: 90%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nv-carrello.pulse .nv-carrello-numero { animation: none; }
+  .nv-gruppo > summary::after { transition: none; }
+}
+
+/* Su schermi touch niente stato "hover" persistente dopo il tocco */
+@media (hover: none) {
+  .btn-outline-nv:hover:not(:active) {
+    background: transparent;
+    color: var(--nv-marrone);
+    border-color: var(--nv-marrone);
+  }
+}

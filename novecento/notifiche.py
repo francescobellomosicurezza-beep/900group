@@ -5,18 +5,25 @@ from django.conf import settings
 from django.core.mail import EmailMessage
 from django.utils import timezone
 
-from .models import Ordine
+from .models import Impostazioni, Ordine
 from .pdf import genera_pdf_ordine, nome_file_pdf
 
 logger = logging.getLogger(__name__)
 
 
+def destinatari_ordini():
+    """Indirizzi da Admin > Impostazioni, altrimenti da ORDINI_EMAIL_DESTINATARI."""
+    return Impostazioni.corrente().destinatari() or list(settings.ORDINI_EMAIL_DESTINATARI)
+
+
 def invia_ordine(ordine):
     """Invia il PDF dell'ordine al laboratorio. Restituisce True se l'invio riesce."""
-    destinatari = list(settings.ORDINI_EMAIL_DESTINATARI)
+    destinatari = destinatari_ordini()
     if not destinatari:
         ordine.stato_invio = Ordine.StatoInvio.ERRORE
-        ordine.errore_invio = "Nessun destinatario configurato (ORDINI_EMAIL_DESTINATARI)."
+        ordine.errore_invio = (
+            "Nessun destinatario configurato: impostalo in Admin > Impostazioni."
+        )
         ordine.save(update_fields=["stato_invio", "errore_invio"])
         return False
 
@@ -27,7 +34,7 @@ def invia_ordine(ordine):
         f"Numero ordine: {ordine.numero}\n"
         f"Operatore: {ordine.operatore}\n"
         f"Data: {creato:%d/%m/%Y %H:%M}\n"
-        f"Articoli: {ordine.righe.count()}\n"
+        f"Righe d'ordine: {ordine.righe.count()}\n"
     )
     if ordine.note:
         corpo += f"\nNote:\n{ordine.note}\n"

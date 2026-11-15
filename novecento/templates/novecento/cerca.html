@@ -1,0 +1,34 @@
+{% extends "novecento/base.html" %}
+{% load static %}
+{% block title %}Cerca{% endblock %}
+{% block content %}
+<nav class="nv-briciole" aria-label="Percorso">
+  <a href="{% url 'novecento:categorie' %}">‹ Tutte le categorie</a>
+  <span>900 {{ sede.nome }}</span>
+</nav>
+
+<form method="get" class="nv-cerca mb-3" role="search">
+  <input type="search" name="q" value="{{ testo }}" class="form-control form-control-lg" placeholder="Cerca un articolo o un codice…" aria-label="Cerca articolo" autofocus>
+</form>
+
+<div id="form-categoria" data-url-quantita="{% url 'novecento:aggiorna_quantita' %}">
+  {% csrf_token %}
+  {% if testo|length < 2 %}
+    <p class="text-muted text-center">Scrivi almeno 2 lettere.</p>
+  {% elif not righe %}
+    <p class="text-muted text-center">Nessun articolo trovato per «{{ testo }}».</p>
+  {% else %}
+    <p class="small text-muted">{{ righe|length }} risultat{{ righe|length|pluralize:"o,i" }} · le quantità si salvano da sole</p>
+    <ul class="nv-articoli list-unstyled">
+      {% for articolo, valore, ultima in righe %}
+        {% include "novecento/_riga_articolo.html" with mostra_percorso=True %}
+      {% endfor %}
+    </ul>
+  {% endif %}
+  {% include "novecento/_barra_carrello.html" %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'novecento/ordine.js' %}"></script>
+{% endblock %}

@@ -2,10 +2,11 @@ from django import forms
 from django.contrib import admin, messages
 from django.contrib.auth import get_user_model, password_validation
 from django.http import HttpResponse
+from django.shortcuts import redirect
 from django.urls import path, reverse
 from django.utils.html import format_html
 
-from .models import Articolo, Categoria, Ordine, RigaOrdine, Sede
+from .models import Articolo, Categoria, Gruppo, Impostazioni, Ordine, RigaOrdine, Sede
 from .notifiche import invia_ordine
 from .pdf import genera_pdf_ordine, nome_file_pdf
 
@@ -117,38 +118,98 @@ class SedeAdmin(admin.ModelAdmin):
         return "—"
 
 
-class ArticoloInline(admin.TabularInline):
-    model = Articolo
+class GruppoInline(admin.TabularInline):
+    model = Gruppo
     extra = 1
-    fields = ["nome", "unita", "descrizione", "ordine", "attivo"]
+    fields = ["nome", "ordine", "attivo", "numero_articoli"]
+    readonly_fields = ["numero_articoli"]
+    show_change_link = True
+
+    @admin.display(description="articoli")
+    def numero_articoli(self, obj):
+        return obj.articoli.count() if obj.pk else 0
 
 
 @admin.register(Categoria)
 class CategoriaAdmin(admin.ModelAdmin):
-    list_display = ["nome", "numero_articoli", "ordine", "attiva"]
-    list_editable = ["ordine", "attiva"]
-    search_fields = ["nome"]
-    inlines = [ArticoloInline]
+    list_display = ["numero", "nome", "icona", "numero_gruppi", "attiva"]
+    list_display_links = ["nome"]
+    list_editable = ["attiva"]
+    search_fields = ["nome", "descrizione"]
+    inlines = [GruppoInline]
 
-    @admin.display(description="articoli")
-    def numero_articoli(self, obj):
-        return obj.articoli.count()
+    @admin.display(description="sottocategorie")
+    def numero_gruppi(self, obj):
+        return obj.gruppi.count()
+
+
+class ArticoloInline(admin.TabularInline):
+    model = Articolo
+    extra = 1
+    fields = [
+        "codice",
+        "nome",
+        "unita",
+        "pezzi_per_cartone",
+        "prezzo_pezzo",
+        "prezzo_cartone",
+        "iva",
+        "ordine",
+        "attivo",
+    ]
+
+
+@admin.register(Gruppo)
+class GruppoAdmin(admin.ModelAdmin):
+    list_display = ["nome", "categoria", "ordine", "attivo"]
+    list_editable = ["ordine", "attivo"]
+    list_filter = ["categoria", "attivo"]
+    search_fields = ["nome"]
+    list_select_related = ["categoria"]
+    inlines = [ArticoloInline]
 
 
 @admin.register(Articolo)
 class ArticoloAdmin(admin.ModelAdmin):
-    list_display = ["nome", "categoria", "unita", "ordine", "attivo"]
-    list_editable = ["unita", "ordine", "attivo"]
-    list_filter = ["categoria", "attivo", "unita"]
-    search_fields = ["nome", "descrizione"]
-    list_select_related = ["categoria"]
+    list_display = [
+        "codice",
+        "nome",
+        "gruppo",
+        "unita",
+        "pezzi_per_cartone",
+        "prezzo_pezzo",
+        "prezzo_cartone",
+        "iva",
+        "attivo",
+    ]
+    list_display_links = ["nome"]
+    list_editable = ["codice", "unita", "pezzi_per_cartone", "prezzo_pezzo", "prezzo_cartone", "iva", "attivo"]
+    list_filter = ["gruppo__categoria", "gruppo", "unita", "attivo"]
+    search_fields = ["nome", "codice"]
+    list_select_related = ["gruppo", "gruppo__categoria"]
+    list_per_page = 100
+
+
+@admin.register(Impostazioni)
+class ImpostazioniAdmin(admin.ModelAdmin):
+    fields = ["email_destinatari"]
+
+    def has_add_permission(self, request):
+        return not Impostazioni.objects.exists()
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def changelist_view(self, request, extra_context=None):
+        impostazioni = Impostazioni.corrente()
+        return redirect("admin:novecento_impostazioni_change", impostazioni.pk)
 
 
 class RigaOrdineInline(admin.TabularInline):
     model = RigaOrdine
     extra = 0
     can_delete = False
-    fields = ["categoria_nome", "articolo_nome", "quantita", "unita"]
+    fields = ["categoria_nome", "gruppo_nome", "codice", "articolo_nome", "quantita", "unita"]
     readonly_fields = fields
 
     def has_add_permission(self, request, obj=None):

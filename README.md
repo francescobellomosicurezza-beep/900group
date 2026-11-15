@@ -8,14 +8,27 @@ Web app Django per gli ordini giornalieri dei punti vendita Gelateria Novecento
    (username e password); la sede viene riconosciuta automaticamente.
    Gli amministratori possono scegliere qualsiasi sede.
 2. Il dipendente inserisce nome e cognome.
-3. Compila l'ordine guidato, una categoria alla volta.
-4. Riepilogo, note e invio: viene generato un PDF e spedito via email al laboratorio
+   Tocca il proprio nome se ha già ordinato da quella sede.
+3. Ordine guidato:
+   - sceglie una delle 7 macrocategorie del listino (con il numero di articoli già scelti);
+   - dentro la categoria apre le sottocategorie a fisarmonica (es. Coni e cialde,
+     Coppette, Contenitori asporto) e imposta le quantità con − / +;
+   - le quantità si salvano da sole: può tornare indietro e cambiare categoria;
+   - vede la quantità del suo ultimo ordine accanto a ogni articolo e può
+     "ripetere l'ultimo ordine" come base;
+   - ricerca veloce per descrizione o codice; barra carrello sempre visibile.
+4. Riepilogo per categoria/sottocategoria, note e invio: viene generato un PDF
+   (codice, articolo, quantità, unità) e spedito via email al laboratorio
    (in copia all'email della sede, se impostata). L'ordine resta nello storico.
 
 ## Amministrazione (`/admin/`)
 - **Sedi**: aggiunta di nuovi punti vendita, email in copia, credenziali di accesso
   (username, nuova password, disattivazione account).
-- **Categorie / Articoli**: catalogo ordinabile, ordine di visualizzazione, attivazione.
+- **Categorie → Sottocategorie → Articoli**: listino 900 (7 categorie, 57 articoli).
+  Per ogni articolo: codice, descrizione, unità di vendita (CT/CF/PZ), pezzi per
+  cartone, prezzo al pezzo, prezzo per cartone, IVA. Gli articoli si modificano
+  anche direttamente dall'elenco.
+- **Impostazioni**: indirizzi email che ricevono gli ordini.
 - **Ordini**: storico, PDF, reinvio email.
 
 ## Provarla sul proprio computer (doppio clic)

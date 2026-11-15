@@ -1,0 +1,47 @@
+{% extends "novecento/base.html" %}
+{% block title %}Ordine{% endblock %}
+{% block content %}
+<p class="nv-badge-sede">900 {{ sede.nome }} · {{ bozza.nome }} {{ bozza.cognome }}</p>
+<h1 class="nv-title">- Cosa ti serve? -</h1>
+
+<form method="get" action="{% url 'novecento:cerca' %}" class="nv-cerca mb-3" role="search">
+  <input type="search" name="q" class="form-control form-control-lg" placeholder="Cerca un articolo o un codice…" aria-label="Cerca articolo" minlength="2">
+</form>
+
+{% if ultimo_ordine and not articoli_selezionati %}
+  <form method="post" action="{% url 'novecento:ripeti_ultimo' %}" class="nv-ripeti mb-3">
+    {% csrf_token %}
+    <div>
+      <strong>Ripeti l'ultimo ordine</strong>
+      <span>del {{ ultimo_ordine.creato_il|date:"d/m/Y" }} · {{ ultimo_ordine.righe.count }} articoli</span>
+    </div>
+    <button type="submit" class="btn btn-outline-nv">Usa come base</button>
+  </form>
+{% endif %}
+
+<ul class="nv-categorie list-unstyled">
+  {% for categoria in categorie %}
+    <li>
+      <a href="{% url 'novecento:categoria' categoria.numero %}" class="nv-categoria-card{% if categoria.selezionati %} selected{% endif %}" data-categoria="{{ categoria.pk }}">
+        <span class="nv-categoria-numero">{{ categoria.numero }}</span>
+        <span class="nv-categoria-testo">
+          <span class="nv-categoria-nome">{% if categoria.icona %}{{ categoria.icona }} {% endif %}{{ categoria.nome }}</span>
+          {% if categoria.descrizione %}<span class="nv-categoria-desc">{{ categoria.descrizione }}</span>{% endif %}
+        </span>
+        <span class="nv-categoria-stato">
+          {% if categoria.selezionati %}
+            <span class="nv-pill">{{ categoria.selezionati }} scelt{{ categoria.selezionati|pluralize:"o,i" }}</span>
+          {% else %}
+            <span class="nv-categoria-tot">{{ categoria.totale_articoli }} art.</span>
+          {% endif %}
+          <span class="nv-chevron" aria-hidden="true">›</span>
+        </span>
+      </a>
+    </li>
+  {% empty %}
+    <li class="alert alert-warning">Nessun articolo ordinabile. Contatta l'amministratore.</li>
+  {% endfor %}
+</ul>
+
+{% include "novecento/_barra_carrello.html" %}
+{% endblock %}
