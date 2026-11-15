@@ -605,6 +605,8 @@ class ListinoExcelTest(TestCase):
         self.client.force_login(admin)
         r = self.client.get(reverse("admin:novecento_articolo_changelist"))
         self.assertContains(r, "Esporta in Excel")
+        self.assertContains(r, "Importa da Excel")
+        self.assertContains(r, reverse("admin:novecento_articolo_importa"))
         r = self.client.get(reverse("admin:novecento_articolo_esporta"))
         self.assertEqual(r.status_code, 200)
         self.assertIn("spreadsheetml", r["Content-Type"])

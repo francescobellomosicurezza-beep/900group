@@ -247,6 +247,10 @@ class ArticoloAdmin(admin.ModelAdmin):
     list_per_page = 100
     change_list_template = "admin/novecento/articolo/change_list.html"
 
+    def changelist_view(self, request, extra_context=None):
+        extra_context = {**(extra_context or {}), "puo_importare": self.has_change_permission(request)}
+        return super().changelist_view(request, extra_context=extra_context)
+
     def get_urls(self):
         extra = [
             path(
