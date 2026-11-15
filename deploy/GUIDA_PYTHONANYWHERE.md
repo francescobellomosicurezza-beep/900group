@@ -2,14 +2,17 @@
 
 Tempo: circa 20 minuti. Costo: 0 €.
 
-## Prima di iniziare: account Gmail per l'invio
+## Account Gmail per l'invio (si può fare anche dopo l'installazione)
 
 1. Crea un Gmail dedicato, es. `ordini.novecento@gmail.com`.
 2. Attiva la **Verifica in due passaggi**: Account Google → Sicurezza.
 3. Crea una **Password per le app**: Account Google → Sicurezza → Password per le app
    (oppure cerca "password per le app"). Nome: `Novecento`.
-   Google mostra 16 lettere: **copiale**, servono al punto 2.3.
+   Google mostra 16 lettere: **copiale**.
    Non sono la password del Gmail e funzionano solo per l'invio.
+4. Dalla console Bash di PythonAnywhere:
+   `bash 900group/deploy/configura_email.sh`
+   (chiede Gmail, password per le app ed email del laboratorio, poi manda un'email di prova).
 
 ## 1. Account PythonAnywhere
 
@@ -33,12 +36,11 @@ bash 900group/deploy/installa_pythonanywhere.sh
 ```
 
 3. Lo script chiede:
-   - l'indirizzo Gmail mittente;
-   - la password per le app (16 lettere; mentre scrivi non si vede nulla, è normale);
-   - l'email del laboratorio che riceve gli ordini;
-   - username, email e password dell'**amministratore**;
+   - username, email e password dell'**amministratore**
+     (mentre scrivi le password non si vede nulla, è normale);
    - una password per ciascuna sede (**spello**, **bastia**, **foligno**);
-   - se inviare un'email di prova (rispondi `s`).
+   - se configurare subito l'email: rispondi `n` se il Gmail non è ancora pronto,
+     lo farai dopo con `configura_email.sh`.
 
    Alla fine stampa le impostazioni per la scheda Web: **lascia aperta la console**.
 

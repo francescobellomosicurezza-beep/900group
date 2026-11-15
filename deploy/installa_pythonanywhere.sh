@@ -33,13 +33,6 @@ fi
 if [ -f .env ]; then
     echo "-> File .env già presente: lo lascio invariato."
 else
-    echo
-    echo "Configurazione email (account Gmail che INVIA gli ordini)."
-    read -r -p "Indirizzo Gmail mittente: " GMAIL
-    read -r -s -p "Password per le app Gmail (16 lettere, non si vede mentre scrivi): " GMAIL_PWD
-    echo
-    GMAIL_PWD="${GMAIL_PWD// /}"
-    read -r -p "Email del laboratorio che RICEVE gli ordini: " DESTINATARIO
     CHIAVE="$(.venv/bin/python -c 'from django.core.management.utils import get_random_secret_key as g; print(g())')"
     umask 077
     cat > .env <<EOF
@@ -52,11 +45,6 @@ DJANGO_EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
 DJANGO_EMAIL_HOST=smtp.gmail.com
 DJANGO_EMAIL_PORT=587
 DJANGO_EMAIL_USE_TLS=1
-DJANGO_EMAIL_HOST_USER=$GMAIL
-DJANGO_EMAIL_HOST_PASSWORD=$GMAIL_PWD
-DJANGO_DEFAULT_FROM_EMAIL=Ordini Novecento <$GMAIL>
-
-ORDINI_EMAIL_DESTINATARI=$DESTINATARIO
 EOF
     chmod 600 .env
     echo "-> File .env creato (leggibile solo da te)."
@@ -86,11 +74,18 @@ for SEDE in spello bastia foligno; do
     fi
 done
 
-# 5. Email di prova
+# 5. Email (si può configurare anche dopo)
 echo
-read -r -p "Vuoi inviare un'email di prova al laboratorio adesso? [s/N] " PROVA
-if [[ "$PROVA" =~ ^[sS]$ ]]; then
-    .venv/bin/python manage.py invia_email_prova || echo "!! Email non partita: controlla Gmail e la password per le app."
+if grep -q "^DJANGO_EMAIL_HOST_PASSWORD=." .env; then
+    echo "-> Email già configurata."
+else
+    read -r -p "Hai già il Gmail mittente con la password per le app? Configuro l'email adesso? [s/N] " EMAIL_ORA
+    if [[ "$EMAIL_ORA" =~ ^[sS]$ ]]; then
+        bash "$CARTELLA/deploy/configura_email.sh"
+    else
+        echo "-> Email da configurare più tardi con:  bash $CARTELLA/deploy/configura_email.sh"
+        echo "   Nel frattempo gli ordini vengono salvati e si possono reinviare da Admin > Ordini."
+    fi
 fi
 
 cat <<EOF

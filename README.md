@@ -70,6 +70,7 @@ In breve, dalla console Bash di PythonAnywhere:
 git clone https://github.com/francescobellomosicurezza-beep/900group.git
 bash 900group/deploy/installa_pythonanywhere.sh
 ```
+Email (anche in un secondo momento): `bash 900group/deploy/configura_email.sh`.
 Aggiornamenti successivi: `bash 900group/deploy/aggiorna.sh`.
 Email di prova: `.venv/bin/python manage.py invia_email_prova`.
 
