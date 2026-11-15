@@ -5,6 +5,24 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+
+def _carica_env(percorso):
+    """Legge le variabili da un file .env (CHIAVE=valore), senza sovrascrivere quelle già presenti."""
+    if not percorso.is_file():
+        return
+    for riga in percorso.read_text(encoding="utf-8").splitlines():
+        riga = riga.strip()
+        if not riga or riga.startswith("#") or "=" not in riga:
+            continue
+        chiave, valore = riga.split("=", 1)
+        valore = valore.strip()
+        if len(valore) >= 2 and valore[0] == valore[-1] and valore[0] in "\"'":
+            valore = valore[1:-1]
+        os.environ.setdefault(chiave.strip(), valore)
+
+
+_carica_env(BASE_DIR / ".env")
+
 SECRET_KEY = os.environ.get(
     "DJANGO_SECRET_KEY",
     "django-insecure-solo-sviluppo-cambiare-in-produzione",
@@ -15,6 +33,13 @@ ALLOWED_HOSTS = [
     for h in os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
     if h.strip()
 ]
+
+CSRF_TRUSTED_ORIGINS = [
+    o.strip() for o in os.environ.get("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",") if o.strip()
+]
+
+if not DEBUG and SECRET_KEY.startswith("django-insecure"):
+    raise RuntimeError("Imposta DJANGO_SECRET_KEY nel file .env prima di usare DJANGO_DEBUG=0.")
 
 INSTALLED_APPS = [
     "django.contrib.admin",

@@ -63,6 +63,16 @@ spuntare "Add python.exe to PATH" durante l'installazione).
 Le email non partono davvero: compaiono nella finestra dello script.
 Le credenziali di prova esistono solo in locale e il comando `dati_demo` è bloccato in produzione.
 
+## Metterla online (gratis)
+Guida passo passo per PythonAnywhere: [`deploy/GUIDA_PYTHONANYWHERE.md`](deploy/GUIDA_PYTHONANYWHERE.md).
+In breve, dalla console Bash di PythonAnywhere:
+```bash
+git clone https://github.com/francescobellomosicurezza-beep/900group.git
+bash 900group/deploy/installa_pythonanywhere.sh
+```
+Aggiornamenti successivi: `bash 900group/deploy/aggiorna.sh`.
+Email di prova: `.venv/bin/python manage.py invia_email_prova`.
+
 ## Avvio in locale (manuale)
 ```bash
 python3.13 -m venv .venv

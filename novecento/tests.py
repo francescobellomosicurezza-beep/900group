@@ -475,3 +475,39 @@ class AvvisoOrdineTest(TestCase):
         self.assertEqual(sede.giorni_ordine, "024")
         self.assertEqual(sede.giorni_display(), "Lun, Mer, Ven")
         self.assertEqual(sede.orario_ordine, datetime.time(9, 30))
+
+
+class ConfigurazioneTest(TestCase):
+    def test_lettura_file_env(self):
+        import os
+        import tempfile
+        from pathlib import Path
+
+        from config.settings import _carica_env
+
+        with tempfile.TemporaryDirectory() as cartella:
+            percorso = Path(cartella) / ".env"
+            percorso.write_text(
+                "# commento\nNV_PROVA_A=uno\nNV_PROVA_B=\"due tre\"\nriga senza uguale\n",
+                encoding="utf-8",
+            )
+            os.environ["NV_PROVA_A"] = "gia-impostata"
+            try:
+                _carica_env(percorso)
+                self.assertEqual(os.environ["NV_PROVA_A"], "gia-impostata")
+                self.assertEqual(os.environ["NV_PROVA_B"], "due tre")
+            finally:
+                os.environ.pop("NV_PROVA_A", None)
+                os.environ.pop("NV_PROVA_B", None)
+
+    @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
+    def test_email_di_prova(self):
+        out = StringIO()
+        call_command("invia_email_prova", "lab@example.com", stdout=out)
+        self.assertEqual(mail.outbox[0].to, ["lab@example.com"])
+        self.assertIn("inviata", out.getvalue())
+
+    @override_settings(ORDINI_EMAIL_DESTINATARI=[])
+    def test_email_di_prova_senza_destinatari(self):
+        with self.assertRaises(CommandError):
+            call_command("invia_email_prova", stdout=StringIO())
