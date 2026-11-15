@@ -139,5 +139,7 @@ if not DEBUG:
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    # Il reindirizzamento a HTTPS è gestito dall'hosting ("Force HTTPS" su PythonAnywhere)
+    SILENCED_SYSTEM_CHECKS = ["security.W004", "security.W008"]
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
