@@ -869,3 +869,56 @@ button { font: inherit; color: inherit; }
 .articolo-nome.variante { font-size: 19px; font-weight: 800; color: var(--cioccolato); }
 
 .sezione.gruppo { scroll-margin-top: calc(var(--barra-h) + 66px); }
+
+/* =====================================================================
+   Tono "luxury": titoli graziati e scritte in maiuscolo spaziato oro
+   ===================================================================== */
+:root { --font-serif: "Playfair Display", Georgia, "Times New Roman", serif; }
+
+.titolo,
+.esito h1,
+.sezione-titolo h2 {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  letter-spacing: -.01em;
+}
+.titolo { font-size: 30px; line-height: 1.15; }
+.titolo-m { font-size: 25px; }
+.gruppo-testa h2 { font-family: var(--font-serif); font-weight: 600; font-size: 19px; letter-spacing: 0; }
+.esito h1 { font-size: 32px; }
+
+.occhiello {
+  margin: 4px 0 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--oro-scuro);
+}
+.occhiello::before {
+  content: "";
+  display: inline-block;
+  width: 22px;
+  height: 1px;
+  margin-right: 10px;
+  vertical-align: middle;
+  background: currentColor;
+}
+.eroe .occhiello { color: var(--oro); margin-top: 6px; }
+.eroe .titolo { font-size: 34px; }
+
+.etichetta-sezione { letter-spacing: .2em; font-size: 11px; color: var(--oro-scuro); }
+.tessera-nome { font-family: var(--font-serif); font-weight: 600; font-size: 17px; letter-spacing: 0; }
+
+.vuoto-icona {
+  width: 64px; height: 64px; margin: 0 auto 14px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  border: 1px solid var(--linea);
+  background: var(--panna);
+  color: var(--oro-scuro);
+}
+.vuoto-icona svg { width: 28px; height: 28px; stroke-width: 1.6; }
+
+.menu-pannello .voce svg { width: 18px; height: 18px; color: var(--oro-scuro); flex-shrink: 0; }
+.menu-pannello .voce.pericolo svg { color: var(--rosso); }

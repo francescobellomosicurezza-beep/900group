@@ -13,8 +13,8 @@
 
 {% block content %}
 <section class="eroe">
-  <p class="saluto">Ciao {{ bozza.nome }},</p>
-  <h1 class="titolo">cosa ti serve oggi?</h1>
+  <p class="occhiello">{{ saluto }}, {{ bozza.nome }}</p>
+  <h1 class="titolo">Cosa ordiniamo oggi?</h1>
   {% include "novecento/_avviso_ordine.html" %}
 </section>
 
@@ -59,7 +59,7 @@
       {% endfor %}
     </div>
   {% else %}
-    <div class="vuoto"><div class="emoji">📦</div>Nessun articolo ordinabile. Contatta l'amministratore.</div>
+    <div class="vuoto"><div class="vuoto-icona">{% include "novecento/_icona.html" with nome="scatola" %}</div>Nessun articolo ordinabile. Contatta l'amministratore.</div>
   {% endif %}
 
   {% include "novecento/_pulsante_promemoria.html" %}

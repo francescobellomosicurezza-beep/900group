@@ -18,9 +18,9 @@
 <div id="form-ordine" data-url-quantita="{% url 'novecento:aggiorna_quantita' %}">
   {% csrf_token %}
   {% if testo|length < 2 %}
-    <div class="vuoto"><div class="emoji">🔎</div>Scrivi almeno 2 lettere del nome o del codice.</div>
+    <div class="vuoto"><div class="vuoto-icona">{% include "novecento/_icona.html" with nome="cerca" %}</div>Scrivi almeno 2 lettere del nome o del codice.</div>
   {% elif not righe %}
-    <div class="vuoto"><div class="emoji">🤷</div>Nessun articolo trovato per «{{ testo }}».</div>
+    <div class="vuoto"><div class="vuoto-icona">{% include "novecento/_icona.html" with nome="scatola" %}</div>Nessun articolo trovato per «{{ testo }}».</div>
   {% else %}
     <p class="etichetta-sezione">{{ righe|length }} risultat{{ righe|length|pluralize:"o,i" }}</p>
     <ul class="elenco card">

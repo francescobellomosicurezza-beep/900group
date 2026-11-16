@@ -1,6 +1,7 @@
 {% extends "novecento/base.html" %}
 {% block title %}Chi sei{% endblock %}
 {% block content %}
+<p class="occhiello">900 {{ sede.nome }}</p>
 <h1 class="titolo">Chi sta ordinando?</h1>
 {% if ordini_oggi %}
   <p class="nota">Oggi {% if ordini_oggi == 1 %}è già partito 1 ordine{% else %}sono già partiti {{ ordini_oggi }} ordini{% endif %} da questo punto vendita: puoi aggiungerne un altro.</p>

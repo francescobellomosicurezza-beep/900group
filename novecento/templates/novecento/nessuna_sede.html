@@ -3,7 +3,7 @@
 {% block avviso %}{% endblock %}
 {% block content %}
 <div class="vuoto">
-  <div class="emoji">🔒</div>
+  <div class="vuoto-icona">{% include "novecento/_icona.html" with nome="lucchetto" %}</div>
   <h1 class="titolo titolo-m">Accesso non abilitato</h1>
   <p>L'account <strong>{{ user.username }}</strong> non è collegato a nessun punto vendita attivo. Contatta l'amministratore.</p>
 </div>

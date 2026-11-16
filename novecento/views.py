@@ -245,10 +245,13 @@ def categorie(request):
         categoria.selezionati = per_categoria.get(categoria.pk, 0)
         categoria.totale_articoli = sum(len(g.attivi) for g in categoria.attivi)
     ultimo, _ = _ultimo_ordine_sede(sede)
+    ora = timezone.localtime().hour
+    saluto = "Buongiorno" if ora < 13 else "Buon pomeriggio" if ora < 18 else "Buonasera"
     return render(
         request,
         "novecento/categorie.html",
         {
+            "saluto": saluto,
             "sede": sede,
             "bozza": bozza,
             "categorie": elenco,

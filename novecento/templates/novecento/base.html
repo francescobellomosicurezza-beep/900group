@@ -14,7 +14,7 @@
   <link rel="apple-touch-icon" href="{% static 'novecento/icone/apple-touch-icon.png' %}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@500;600&family=Lobster&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@500;600;700&family=Oswald:wght@500;600&family=Lobster&display=swap" rel="stylesheet">
   <link href="{% static 'novecento/novecento.css' %}" rel="stylesheet">
   <script>document.documentElement.classList.remove("no-js");</script>
 </head>
@@ -39,15 +39,15 @@
             {% if avviso_sede %}900 {{ avviso_sede.nome }} · {% endif %}accesso <strong>{{ user.username }}</strong>
           </div>
           {% if avviso_sede.orario_ordine and avviso_sede.giorni_ordine %}
-            <a class="voce" href="{% url 'novecento:promemoria' %}">📅 Promemoria sul telefono</a>
+            <a class="voce" href="{% url 'novecento:promemoria' %}">{% include "novecento/_icona.html" with nome="calendario" %}Promemoria sul telefono</a>
           {% endif %}
           {% if user.is_staff or user.is_superuser %}
-            <a class="voce" href="{% url 'novecento:scelta_sede' %}">🔁 Cambia sede</a>
-            <a class="voce" href="{% url 'admin:index' %}">⚙️ Amministrazione</a>
+            <a class="voce" href="{% url 'novecento:scelta_sede' %}">{% include "novecento/_icona.html" with nome="scambia" %}Cambia sede</a>
+            <a class="voce" href="{% url 'admin:index' %}">{% include "novecento/_icona.html" with nome="ingranaggio" %}Amministrazione</a>
           {% endif %}
           <form method="post" action="{% url 'logout' %}">
             {% csrf_token %}
-            <button type="submit" class="voce pericolo">↩ Esci</button>
+            <button type="submit" class="voce pericolo">{% include "novecento/_icona.html" with nome="esci" %}Esci</button>
           </form>
         </div>
       </details>

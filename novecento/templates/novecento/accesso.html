@@ -11,8 +11,9 @@
   <div class="foglio">
     <div class="foglio-interno">
       <div class="maniglia" aria-hidden="true"></div>
-      <h1 class="titolo">Ciao! 👋</h1>
-      <p class="sottotitolo">Entra con le credenziali del tuo punto vendita.</p>
+      <p class="occhiello">Area riservata · Punti vendita</p>
+      <h1 class="titolo">Accedi al tuo punto vendita</h1>
+      <p class="sottotitolo">Inserisci le credenziali della sede.</p>
 
       <form method="post" novalidate>
         {% csrf_token %}
@@ -33,7 +34,7 @@
         <input type="hidden" name="next" value="{{ next }}">
         <div class="azioni"><button type="submit" class="btn btn-primario">Entra {% include "novecento/_icona.html" with nome="freccia" %}</button></div>
       </form>
-      <p class="accesso-piede">Ordini punti vendita · Gelateria Novecento</p>
+      <p class="accesso-piede">Gelateria Novecento · Ordini interni</p>
     </div>
   </div>
 </div>

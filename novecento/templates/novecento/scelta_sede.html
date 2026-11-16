@@ -6,7 +6,7 @@
 <p class="sottotitolo">Accesso amministratore: scegli il punto vendita.</p>
 
 {% if not sedi %}
-  <div class="vuoto"><div class="emoji">🏪</div>Nessun punto vendita attivo. Aggiungilo dall'amministrazione.</div>
+  <div class="vuoto"><div class="vuoto-icona">{% include "novecento/_icona.html" with nome="negozio" %}</div>Nessun punto vendita attivo. Aggiungilo dall'amministrazione.</div>
 {% else %}
 <form method="post" novalidate>
   {% csrf_token %}

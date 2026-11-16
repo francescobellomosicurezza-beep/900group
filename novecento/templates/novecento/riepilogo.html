@@ -10,11 +10,12 @@
 {% block content %}
 {% if not albero %}
   <div class="vuoto">
-    <div class="emoji">🛒</div>
+    <div class="vuoto-icona">{% include "novecento/_icona.html" with nome="borsa" %}</div>
     <p>Non hai ancora scelto nessun articolo.</p>
   </div>
   <a href="{% url 'novecento:categorie' %}" class="btn btn-primario">Scegli gli articoli</a>
 {% else %}
+  <p class="occhiello">Riepilogo</p>
   <h1 class="titolo titolo-m">Controlla e invia</h1>
   <p class="sottotitolo">900 {{ sede.nome }} · {{ bozza.nome }} {{ bozza.cognome }}</p>
 
