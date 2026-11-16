@@ -237,6 +237,17 @@ class Impostazioni(models.Model):
         help_text="Uno o più indirizzi separati da virgola o a capo. "
         "Se vuoto si usa la configurazione del server.",
     )
+    email_mittente = models.EmailField(
+        "Gmail che invia gli ordini",
+        blank=True,
+        help_text="Se vuoto si usa la configurazione del server.",
+    )
+    email_password_app = models.CharField(
+        "password per le app (Gmail)",
+        max_length=64,
+        blank=True,
+        help_text="Le 16 lettere generate da Google.",
+    )
 
     class Meta:
         verbose_name = "impostazioni"
@@ -257,6 +268,10 @@ class Impostazioni(models.Model):
     def destinatari(self):
         testo = self.email_destinatari.replace("\n", ",").replace(";", ",")
         return [e.strip() for e in testo.split(",") if e.strip()]
+
+    @property
+    def gmail_configurato(self):
+        return bool(self.email_mittente and self.email_password_app)
 
 
 class Ordine(models.Model):

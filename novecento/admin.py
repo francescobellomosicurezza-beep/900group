@@ -10,7 +10,7 @@ from django.utils.html import format_html
 
 from .models import GIORNI_SETTIMANA, Articolo, Categoria, Gruppo, Impostazioni, Ordine, RigaOrdine, Sede
 from .listino_excel import esporta_listino, importa_listino
-from .notifiche import invia_ordine
+from .notifiche import invia_email_prova, invia_ordine
 from .pdf import genera_pdf_ordine, nome_file_pdf
 
 
@@ -309,9 +309,83 @@ class ArticoloAdmin(admin.ModelAdmin):
         return render(request, "admin/novecento/articolo/importa_excel.html", contesto)
 
 
+class ImpostazioniForm(forms.ModelForm):
+    nuova_password_app = forms.CharField(
+        label="Password per le app (Gmail)",
+        required=False,
+        strip=True,
+        widget=forms.PasswordInput(render_value=False, attrs={"autocomplete": "new-password"}),
+        help_text="Le 16 lettere create su myaccount.google.com/apppasswords. "
+        "Lascia vuoto per mantenere quella salvata.",
+    )
+    rimuovi_gmail = forms.BooleanField(
+        label="Scollega il Gmail",
+        required=False,
+        help_text="Cancella Gmail e password per le app: si torna alla configurazione del server.",
+    )
+
+    class Meta:
+        model = Impostazioni
+        fields = ["email_destinatari", "email_mittente"]
+        widgets = {"email_destinatari": forms.Textarea(attrs={"rows": 3})}
+
+    def clean(self):
+        cleaned = super().clean()
+        if cleaned.get("rimuovi_gmail"):
+            return cleaned
+        password = (cleaned.get("nuova_password_app") or "").replace(" ", "")
+        cleaned["nuova_password_app"] = password
+        if password and len(password) != 16:
+            self.add_error(
+                "nuova_password_app",
+                "La password per le app di Google è di 16 lettere (gli spazi non contano).",
+            )
+        if password and not cleaned.get("email_mittente"):
+            self.add_error("email_mittente", "Indica il Gmail a cui appartiene la password.")
+        if (
+            cleaned.get("email_mittente")
+            and not password
+            and not self.instance.email_password_app
+        ):
+            self.add_error("nuova_password_app", "Inserisci la password per le app di questo Gmail.")
+        return cleaned
+
+    def save(self, commit=True):
+        impostazioni = super().save(commit=False)
+        if self.cleaned_data.get("rimuovi_gmail"):
+            impostazioni.email_mittente = ""
+            impostazioni.email_password_app = ""
+        elif self.cleaned_data.get("nuova_password_app"):
+            impostazioni.email_password_app = self.cleaned_data["nuova_password_app"]
+        if commit:
+            impostazioni.save()
+        return impostazioni
+
+
 @admin.register(Impostazioni)
 class ImpostazioniAdmin(admin.ModelAdmin):
-    fields = ["email_destinatari"]
+    form = ImpostazioniForm
+    change_form_template = "admin/novecento/impostazioni/change_form.html"
+    fieldsets = [
+        ("Chi riceve gli ordini", {"fields": ["email_destinatari"]}),
+        (
+            "Gmail che invia gli ordini",
+            {
+                "fields": ["email_mittente", "stato_gmail", "nuova_password_app", "rimuovi_gmail"],
+                "description": "1) Sul Gmail attiva la verifica in due passaggi. "
+                "2) Apri myaccount.google.com/apppasswords, crea una password chiamata "
+                "«Novecento» e copia le 16 lettere. 3) Incollale qui, poi «Salva e invia "
+                "email di prova».",
+            },
+        ),
+    ]
+    readonly_fields = ["stato_gmail"]
+
+    @admin.display(description="Stato")
+    def stato_gmail(self, obj):
+        if obj and obj.gmail_configurato:
+            return "✅ Password per le app salvata"
+        return "— non configurato (si usa la configurazione del server)"
 
     def has_add_permission(self, request):
         return not Impostazioni.objects.exists()
@@ -322,6 +396,13 @@ class ImpostazioniAdmin(admin.ModelAdmin):
     def changelist_view(self, request, extra_context=None):
         impostazioni = Impostazioni.corrente()
         return redirect("admin:novecento_impostazioni_change", impostazioni.pk)
+
+    def response_change(self, request, obj):
+        if "_email_prova" in request.POST:
+            ok, messaggio = invia_email_prova()
+            self.message_user(request, messaggio, messages.SUCCESS if ok else messages.ERROR)
+            return redirect("admin:novecento_impostazioni_change", obj.pk)
+        return super().response_change(request, obj)
 
 
 class RigaOrdineInline(admin.TabularInline):

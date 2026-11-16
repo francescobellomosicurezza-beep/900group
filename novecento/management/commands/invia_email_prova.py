@@ -1,14 +1,11 @@
-import smtplib
-
 from django.conf import settings
-from django.core.mail import send_mail
 from django.core.management.base import BaseCommand, CommandError
 
-from novecento.notifiche import destinatari_ordini
+from novecento.notifiche import invia_email_prova, mittente_e_connessione
 
 
 class Command(BaseCommand):
-    help = "Invia un'email di prova per verificare la configurazione SMTP."
+    help = "Invia un'email di prova per verificare la configurazione dell'invio."
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -18,23 +15,11 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        destinatari = [options["destinatario"]] if options["destinatario"] else destinatari_ordini()
-        if not destinatari:
-            raise CommandError(
-                "Nessun destinatario: passalo come argomento o impostalo in Admin > Impostazioni."
-            )
-        self.stdout.write(
-            f"Server: {settings.EMAIL_HOST}:{settings.EMAIL_PORT} "
-            f"utente: {settings.EMAIL_HOST_USER or '(nessuno)'}"
-        )
-        try:
-            send_mail(
-                "Prova invio ordini Novecento",
-                "Se leggi questa email, l'invio degli ordini è configurato correttamente.",
-                settings.DEFAULT_FROM_EMAIL,
-                destinatari,
-                fail_silently=False,
-            )
-        except (smtplib.SMTPException, OSError) as errore:
-            raise CommandError(f"Invio non riuscito: {errore}") from errore
-        self.stdout.write(self.style.SUCCESS(f"Email di prova inviata a: {', '.join(destinatari)}"))
+        mittente, connessione = mittente_e_connessione()
+        origine = "Admin > Impostazioni" if connessione else f"server {settings.EMAIL_HOST}"
+        self.stdout.write(f"Mittente: {mittente} ({origine})")
+        destinatari = [options["destinatario"]] if options["destinatario"] else None
+        ok, messaggio = invia_email_prova(destinatari)
+        if not ok:
+            raise CommandError(messaggio)
+        self.stdout.write(self.style.SUCCESS(messaggio))

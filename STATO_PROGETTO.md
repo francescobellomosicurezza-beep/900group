@@ -22,8 +22,9 @@ Ultimo aggiornamento: 15/11/2026 (sera)
      Gmail aziendale);
    - alternativa: il Gmail di Novecento già in uso.
    In entrambi i casi: verifica in due passaggi + "password per le app" (16 lettere).
-   Servono: indirizzo mittente, 16 lettere, email del laboratorio che riceve. Poi su PythonAnywhere:
-   `bash 900group/deploy/configura_email.sh` e rispondere `s` all'email di prova.
+   Servono: indirizzo mittente, 16 lettere, email del laboratorio che riceve.
+   Si inseriscono da **admin → Impostazioni** (anche da telefono) → «Salva e invia email di prova».
+   In alternativa da console: `bash 900group/deploy/configura_email.sh`.
    - Da verificare: il piano gratuito consente l'uscita solo verso siti HTTP(S) autorizzati.
      Se l'SMTP di Gmail risulta bloccato: passare a un invio via API HTTP (es. Brevo, gratuito)
      oppure al piano Developer (10 $/mese).

@@ -625,3 +625,79 @@ class ListinoExcelTest(TestCase):
         self.client.force_login(utente)
         r = self.client.get(reverse("admin:novecento_articolo_esporta"))
         self.assertEqual(r.status_code, 302)
+
+
+@override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
+class GmailDaAdminTest(TestCase):
+    def setUp(self):
+        self.admin = get_user_model().objects.create_superuser("capo", password=PASSWORD)
+        self.client.force_login(self.admin)
+        self.url = reverse("admin:novecento_impostazioni_change", args=[Impostazioni.corrente().pk])
+
+    def _dati(self, **extra):
+        dati = {"email_destinatari": "lab@example.com", "email_mittente": "", "nuova_password_app": ""}
+        dati.update(extra)
+        return dati
+
+    def test_salva_password_e_la_mantiene(self):
+        r = self.client.post(
+            self.url,
+            self._dati(email_mittente="prova@gmail.com", nuova_password_app="abcd efgh ijkl mnop"),
+        )
+        self.assertEqual(r.status_code, 302)
+        impostazioni = Impostazioni.corrente()
+        self.assertEqual(impostazioni.email_password_app, "abcdefghijklmnop")
+        self.assertTrue(impostazioni.gmail_configurato)
+
+        self.client.post(self.url, self._dati(email_mittente="prova@gmail.com"))
+        self.assertEqual(Impostazioni.corrente().email_password_app, "abcdefghijklmnop")
+
+        r = self.client.get(self.url)
+        self.assertNotContains(r, "abcdefghijklmnop")
+        self.assertContains(r, "Password per le app salvata")
+
+    def test_password_errata_o_mancante(self):
+        r = self.client.post(
+            self.url, self._dati(email_mittente="prova@gmail.com", nuova_password_app="corta")
+        )
+        self.assertContains(r, "16 lettere")
+        r = self.client.post(self.url, self._dati(email_mittente="prova@gmail.com"))
+        self.assertContains(r, "Inserisci la password per le app")
+        self.assertFalse(Impostazioni.corrente().gmail_configurato)
+
+    def test_scollega_gmail(self):
+        self.client.post(
+            self.url,
+            self._dati(email_mittente="prova@gmail.com", nuova_password_app="abcdefghijklmnop"),
+        )
+        self.client.post(self.url, self._dati(email_mittente="prova@gmail.com", rimuovi_gmail="on"))
+        impostazioni = Impostazioni.corrente()
+        self.assertEqual((impostazioni.email_mittente, impostazioni.email_password_app), ("", ""))
+
+    def test_pulsante_email_di_prova_usa_gmail(self):
+        r = self.client.post(
+            self.url,
+            self._dati(
+                email_mittente="prova@gmail.com",
+                nuova_password_app="abcdefghijklmnop",
+                _email_prova="1",
+            ),
+            follow=True,
+        )
+        self.assertContains(r, "Email di prova inviata a: lab@example.com")
+        self.assertEqual(mail.outbox[0].from_email, "Ordini Novecento <prova@gmail.com>")
+        self.assertEqual(mail.outbox[0].to, ["lab@example.com"])
+
+    def test_ordine_inviato_dal_gmail_di_admin(self):
+        impostazioni = Impostazioni.corrente()
+        impostazioni.email_destinatari = "lab@example.com"
+        impostazioni.email_mittente = "prova@gmail.com"
+        impostazioni.email_password_app = "abcdefghijklmnop"
+        impostazioni.save()
+        sede = Sede.objects.get(slug="spello")
+        ordine = Ordine.objects.create(sede=sede, nome="A", cognome="B")
+        ordine.righe.create(categoria_nome="1 - X", articolo_nome="Y", unita="pezzo", quantita=1)
+        from .notifiche import invia_ordine
+
+        self.assertTrue(invia_ordine(ordine))
+        self.assertEqual(mail.outbox[0].from_email, "Ordini Novecento <prova@gmail.com>")
