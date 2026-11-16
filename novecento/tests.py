@@ -280,11 +280,22 @@ class FlussoOrdineTest(TestCase):
 
 class ListinoTest(TestCase):
     def test_listino_900_caricato(self):
-        self.assertEqual(Categoria.objects.count(), 7)
-        self.assertEqual(Articolo.objects.count(), 57)
+        self.assertEqual(Categoria.objects.count(), 8)
+        self.assertEqual(Articolo.objects.count(), 57 + 76)
         self.assertEqual(
-            list(Categoria.objects.values_list("numero", flat=True)), [1, 2, 3, 4, 5, 6, 7]
+            list(Categoria.objects.values_list("numero", flat=True)), [1, 2, 3, 4, 5, 6, 7, 8]
         )
+        gusti = Categoria.objects.get(numero=8)
+        self.assertEqual(gusti.nome, "Gusti gelato in vaschetta")
+        self.assertEqual(
+            {g.nome: g.articoli.count() for g in gusti.gruppi.all()},
+            {"Gusti crema": 56, "Gusti frutta": 20},
+        )
+        self.assertTrue(
+            all(a.unita == "VS" for a in Articolo.objects.filter(gruppo__categoria=gusti))
+        )
+        pistacchio = Articolo.objects.get(nome="Pistacchio", gruppo__categoria=gusti)
+        self.assertEqual(pistacchio.unita_per_quantita(3), "vaschette")
         coni = Gruppo.objects.get(nome="Coni e cialde")
         self.assertEqual(coni.articoli.count(), 5)
         self.assertEqual(Articolo.objects.get(nome="Ghiaccio a cubetti 10 kg").codice, "SOT001")
@@ -560,7 +571,7 @@ class ListinoExcelTest(TestCase):
             riga[10].value = 22
             self._riga(foglio, "Sfere classiche")[11].value = "NO"
             foglio.append([None, 1, "", "Coni speciali", "X1", "Cono al cacao", "CT", 4, None, None, 10, "SI"])
-            foglio.append([None, 8, "Bevande", "Acque", "", "Acqua naturale 0,5 l", "CT", 24, None, None, None, ""])
+            foglio.append([None, 9, "Bevande", "Acque", "", "Acqua naturale 0,5 l", "CT", 24, None, None, None, ""])
 
         esito = importa_listino(self._file(modifica))
         self.assertTrue(esito.riuscita, esito.errori)
@@ -576,7 +587,7 @@ class ListinoExcelTest(TestCase):
         nuovo = Articolo.objects.get(nome="Cono al cacao")
         self.assertEqual(nuovo.gruppo.nome, "Coni speciali")
         self.assertEqual(nuovo.gruppo.categoria.numero, 1)
-        self.assertEqual(Categoria.objects.get(numero=8).nome, "Bevande")
+        self.assertEqual(Categoria.objects.get(numero=9).nome, "Bevande")
 
     def test_errore_annulla_tutto(self):
         from .listino_excel import importa_listino

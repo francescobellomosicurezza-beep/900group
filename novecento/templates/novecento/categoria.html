@@ -32,7 +32,7 @@
         <h2>{{ blocco.gruppo.nome }}</h2>
         <span class="gruppo-conta">
           <span class="pill-scelti" data-conteggio-gruppo="{{ blocco.gruppo.pk }}" {% if not blocco.selezionati %}hidden{% endif %}>{{ blocco.selezionati }}</span>
-          <span class="gruppo-tot">{{ blocco.righe|length }} variant{{ blocco.righe|length|pluralize:"e,i" }}</span>
+          <span class="gruppo-tot">{% if blocco.gruppo.unita_comune %}{{ blocco.righe|length }} articol{{ blocco.righe|length|pluralize:"o,i" }} · {{ blocco.gruppo.unita_comune }}{% else %}{{ blocco.righe|length }} variant{{ blocco.righe|length|pluralize:"e,i" }}{% endif %}</span>
         </span>
       </header>
       <ul class="elenco">

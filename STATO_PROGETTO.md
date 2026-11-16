@@ -12,7 +12,9 @@ Ultimo aggiornamento: 16/11/2026
 - **Aiuti**: ricerca, "ultimo ordine: N", ripeti ultimo ordine, barra carrello.
 - **Orario d'ordine per sede** (admin → Sedi): avviso in app giallo/rosso/verde e
   promemoria ricorrente da aggiungere al calendario del telefono (.ics).
-- **Listino 900**: 7 categorie, 17 sottocategorie, 57 articoli. Codici e prezzi provvisori.
+- **Listino 900**: 8 categorie, 19 sottocategorie, 133 articoli. Codici e prezzi provvisori.
+  - Categoria 8 «Gusti gelato in vaschetta» (LISTINO_900_categoria_8.pdf): Gusti crema (56) e
+    Gusti frutta (20), unità «vaschetta» (VS).
   Gestione massiva da admin → Articoli → Esporta/Importa Excel.
 - **Destinatari email e Gmail mittente** da admin → Impostazioni (con «Salva e invia email di prova»).
 - **Interfaccia premium** (16/11/2026): barra compatta, home a griglia con nomi brevi delle

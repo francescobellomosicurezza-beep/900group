@@ -301,6 +301,13 @@ def categoria(request, numero):
     gruppi = []
     for gruppo in corrente.attivi:
         _segna_varianti(gruppo.attivi)
+        confezioni = {a.confezione for a in gruppo.attivi}
+        unita_comune = ""
+        if len(confezioni) == 1 and not any(a.codice for a in gruppo.attivi):
+            unita_comune = confezioni.pop()
+            for articolo in gruppo.attivi:
+                articolo.nascondi_confezione = True
+        gruppo.unita_comune = unita_comune
         gruppi.append(
             {
                 "gruppo": gruppo,

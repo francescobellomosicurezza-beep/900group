@@ -922,3 +922,6 @@ button { font: inherit; color: inherit; }
 
 .menu-pannello .voce svg { width: 18px; height: 18px; color: var(--oro-scuro); flex-shrink: 0; }
 .menu-pannello .voce.pericolo svg { color: var(--rosso); }
+
+/* Righe compatte quando unità e codice sono uguali per tutto il gruppo (es. gusti) */
+.articolo.compatto { padding-top: 8px; padding-bottom: 8px; min-height: 60px; }

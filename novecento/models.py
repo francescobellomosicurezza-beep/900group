@@ -111,6 +111,7 @@ class Categoria(models.Model):
 
     class Simbolo(models.TextChoices):
         GELATO = "gelato", "Cono gelato"
+        VASCHETTA = "vaschetta", "Vaschetta di gelato"
         SALSE = "salse", "Barattolo salse"
         BAR = "bar", "Tazza caffè"
         ASPORTO = "asporto", "Busta asporto"
@@ -192,6 +193,7 @@ class Articolo(models.Model):
         CARTONE = "CT", "cartone"
         CONFEZIONE = "CF", "confezione"
         PEZZO = "PZ", "pezzo"
+        VASCHETTA = "VS", "vaschetta"
 
     class Iva(models.IntegerChoices):
         QUATTRO = 4, "4%"
@@ -242,7 +244,7 @@ class Articolo(models.Model):
     def __str__(self):
         return self.nome
 
-    PLURALI = {"CT": "cartoni", "CF": "confezioni", "PZ": "pezzi"}
+    PLURALI = {"CT": "cartoni", "CF": "confezioni", "PZ": "pezzi", "VS": "vaschette"}
 
     def unita_per_quantita(self, quantita):
         """Unità concordata con la quantità: 1 cartone, 2 cartoni."""

@@ -1,4 +1,4 @@
-<li class="articolo{% if valore %} attivo{% endif %}" data-nome="{{ articolo.nome|lower }} {{ articolo.codice|lower }}">
+<li class="articolo{% if valore %} attivo{% endif %}{% if articolo.nascondi_confezione %} compatto{% endif %}" data-nome="{{ articolo.nome|lower }} {{ articolo.codice|lower }}">
   <div class="articolo-info">
     {% if articolo.variante %}
       <span class="articolo-base">{{ articolo.base }}</span>
@@ -6,11 +6,13 @@
     {% else %}
       <label for="qta-{{ articolo.pk }}" class="articolo-nome">{{ articolo.nome }}</label>
     {% endif %}
-    <span class="articolo-meta">
-      {% if articolo.codice %}<span class="codice">{{ articolo.codice }}</span>{% endif %}
-      <span>{{ articolo.confezione }}</span>
-      {% if ultima %}<span class="ultimo" title="Quantità dell'ultimo ordine">ultima volta {{ ultima }}</span>{% endif %}
-    </span>
+    {% if articolo.codice or ultima or not articolo.nascondi_confezione %}
+      <span class="articolo-meta">
+        {% if articolo.codice %}<span class="codice">{{ articolo.codice }}</span>{% endif %}
+        {% if not articolo.nascondi_confezione %}<span>{{ articolo.confezione }}</span>{% endif %}
+        {% if ultima %}<span class="ultimo" title="Quantità dell'ultimo ordine">ultima volta {{ ultima }}</span>{% endif %}
+      </span>
+    {% endif %}
     {% if mostra_percorso %}<span class="percorso">{{ articolo.gruppo.categoria.etichetta }} › {{ articolo.gruppo.nome }}</span>{% endif %}
     {% for error in errori %}<p class="errore">{{ error }}</p>{% endfor %}
   </div>

@@ -20,7 +20,7 @@ COLONNE = [
     ("Sottocategoria", 30),
     ("Codice", 14),
     ("Descrizione", 44),
-    ("Unità (CT/CF/PZ)", 16),
+    ("Unità (CT/CF/PZ/VS)", 18),
     ("Pezzi per cartone", 16),
     ("Prezzo al pezzo", 15),
     ("Prezzo per cartone", 17),
@@ -40,7 +40,7 @@ ISTRUZIONI = [
     "   Se la sottocategoria non esiste viene creata. La categoria deve esistere (oppure scrivi anche il nome per crearla).",
     "3. Per TOGLIERE un articolo dagli ordini: scrivi NO in «Attivo». Non cancellare le righe.",
     "4. Non modificare la colonna ID delle righe esistenti: serve a riconoscere l'articolo.",
-    "5. Unità: CT = cartone, CF = confezione, PZ = pezzo. IVA: 4, 5, 10 o 22. Prezzi con la virgola o il punto.",
+    "5. Unità: CT = cartone, CF = confezione, PZ = pezzo, VS = vaschetta. IVA: 4, 5, 10 o 22. Prezzi con la virgola o il punto.",
     "6. Salva il file e caricalo da Admin › Articoli › «Importa da Excel».",
     "   Se una riga contiene un errore non viene modificato nulla e il sito indica la riga da correggere.",
 ]
@@ -107,7 +107,8 @@ def esporta_listino():
         riga += 1
 
     ultima = max(riga + 500, 1000)
-    for formula, colonna in [('"CT,CF,PZ"', "G"), ('"4,5,10,22"', "K"), ('"SI,NO"', "L")]:
+    unita = ",".join(u.value for u in Articolo.Unita)
+    for formula, colonna in [(f'"{unita}"', "G"), ('"4,5,10,22"', "K"), ('"SI,NO"', "L")]:
         validazione = DataValidation(type="list", formula1=formula, allow_blank=True)
         validazione.add(f"{colonna}2:{colonna}{ultima}")
         foglio.add_data_validation(validazione)
@@ -221,7 +222,7 @@ def _importa_riga(valori, esito, esistenti, categorie, gruppi, visti):
         raise ValueError("descrizione troppo lunga (max 150 caratteri)")
     unita = (_testo(unita) or "CF").upper()
     if unita not in UNITA_VALIDE:
-        raise ValueError(f"unità «{unita}» non valida (usa CT, CF o PZ)")
+        raise ValueError(f"unità «{unita}» non valida (usa {', '.join(sorted(UNITA_VALIDE))})")
     iva = _intero(iva, "IVA")
     if iva is not None and iva not in IVA_VALIDE:
         raise ValueError(f"IVA {iva}% non valida (usa 4, 5, 10 o 22)")
