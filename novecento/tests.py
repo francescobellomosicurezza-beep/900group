@@ -1,5 +1,8 @@
 import datetime
 import json
+import shutil
+import subprocess
+import unittest
 from io import StringIO
 
 from django.contrib.auth import get_user_model
@@ -773,3 +776,23 @@ class SalutoTest(TestCase):
         r = self.client.get(reverse("login"))
         self.assertContains(r, f'<h1 class="titolo">{saluto_del_momento()}</h1>', html=True)
         self.assertNotContains(r, "Ciao")
+
+
+class PdfSenzaSottocategorieTest(TestCase):
+    @unittest.skipUnless(shutil.which("pdftotext"), "pdftotext non installato")
+    def test_pdf_elenca_categoria_e_articoli_senza_sottocategorie(self):
+        sede = Sede.objects.get(slug="spello")
+        ordine = Ordine.objects.create(sede=sede, nome="A", cognome="B")
+        ordine.righe.create(
+            categoria_nome="1 - Accessori gelateria", gruppo_nome="Sottocategoria nascosta",
+            codice="NOCC", articolo_nome="Cono wafer 091", unita="cartone", quantita=2,
+        )
+        testo = subprocess.run(
+            ["pdftotext", "-layout", "-", "-"],
+            input=genera_pdf_ordine(ordine),
+            capture_output=True,
+            check=True,
+        ).stdout.decode()
+        self.assertIn("1 - ACCESSORI GELATERIA", testo)
+        self.assertIn("Cono wafer 091", testo)
+        self.assertNotIn("SOTTOCATEGORIA NASCOSTA", testo.upper())

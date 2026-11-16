@@ -129,26 +129,16 @@ def genera_pdf_ordine(ordine):
             ("TOPPADDING", (0, 0), (-1, -1), 4),
             ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
         ]
-        for gruppo, righe_gruppo in groupby(righe_categoria, key=lambda r: r.gruppo_nome):
-            if gruppo:
-                indice = len(dati)
-                dati.append([gruppo.upper(), "", "", ""])
-                stile += [
-                    ("SPAN", (0, indice), (-1, indice)),
-                    ("BACKGROUND", (0, indice), (-1, indice), CREMA),
-                    ("FONTNAME", (0, indice), (-1, indice), "Helvetica-Bold"),
-                    ("TEXTCOLOR", (0, indice), (-1, indice), MARRONE),
-                    ("FONTSIZE", (0, indice), (-1, indice), 8.5),
+        for riga in righe_categoria:
+            dati.append(
+                [
+                    riga.codice,
+                    Paragraph(escape(riga.articolo_nome), stili["normale"]),
+                    riga.quantita,
+                    riga.unita,
                 ]
-            for riga in righe_gruppo:
-                dati.append(
-                    [
-                        riga.codice,
-                        Paragraph(escape(riga.articolo_nome), stili["normale"]),
-                        riga.quantita,
-                        riga.unita,
-                    ]
-                )
+            )
+        stile.append(("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, CREMA]))
         tabella = Table(dati, colWidths=[22 * mm, None, 16 * mm, 38 * mm], repeatRows=1)
         tabella.setStyle(TableStyle(stile))
         elementi.append(
