@@ -1,6 +1,6 @@
 # Stato del progetto – Novecento Ordini
 
-Ultimo aggiornamento: 15/11/2026 (sera)
+Ultimo aggiornamento: 16/11/2026
 
 ## Cosa c'è e funziona
 - **Sito online**: https://novecento900.pythonanywhere.com (PythonAnywhere, piano gratuito Beginner).
@@ -25,9 +25,9 @@ Ultimo aggiornamento: 15/11/2026 (sera)
    Servono: indirizzo mittente, 16 lettere, email del laboratorio che riceve.
    Si inseriscono da **admin → Impostazioni** (anche da telefono) → «Salva e invia email di prova».
    In alternativa da console: `bash 900group/deploy/configura_email.sh`.
-   - Da verificare: il piano gratuito consente l'uscita solo verso siti HTTP(S) autorizzati.
-     Se l'SMTP di Gmail risulta bloccato: passare a un invio via API HTTP (es. Brevo, gratuito)
-     oppure al piano Developer (10 $/mese).
+   - ✅ Verificato il 16/11/2026: l'invio via Gmail funziona sul piano gratuito
+     (prova fatta con un Gmail personale di Francesco; da sostituire con quello di Novecento
+     e poi revocare la password per le app personale).
 2. Impostare **orario e giorni d'ordine** di Spello, Bastia e Foligno (admin → Sedi).
 3. Caricare **codici veri** (e poi prezzi/IVA) con Esporta/Importa Excel.
 4. Sui telefoni delle sedi: "Aggiungi alla schermata Home" + "Ricevi il promemoria sul telefono".
