@@ -117,6 +117,32 @@ def _righe_bozza(bozza):
     return [(a, quantita[str(a.pk)]) for a in articoli]
 
 
+def _segna_varianti(articoli, max_parole=5):
+    """Per articoli dello stesso gruppo che iniziano con le stesse parole imposta
+    `base` (la parte comune) e `variante` (la parte che li distingue).
+
+    Esempio: «Coppette cartone baby/piccole/medie/grandi» -> base «Coppette cartone»,
+    varianti «baby», «piccole», «medie», «grandi».
+    """
+    articoli = list(articoli)
+    for articolo in articoli:
+        articolo.base, articolo.variante = "", ""
+    if len(articoli) < 2:
+        return articoli
+    parole = [a.nome.split() for a in articoli]
+    corta = min(len(p) for p in parole)
+    comuni = 0
+    while comuni < corta and len({p[comuni].lower() for p in parole}) == 1:
+        comuni += 1
+    resti = [p[comuni:] for p in parole]
+    if not comuni or any(not r or len(r) > max_parole for r in resti):
+        return articoli
+    for articolo, p, resto in zip(articoli, parole, resti):
+        articolo.base = " ".join(p[:comuni])
+        articolo.variante = " ".join(resto)
+    return articoli
+
+
 def _raggruppa(righe):
     """{categoria: {gruppo: [(articolo, qta), ...]}} mantenendo l'ordine."""
     albero = OrderedDict()
@@ -274,6 +300,7 @@ def categoria(request, numero):
     campi = dict(form.righe())
     gruppi = []
     for gruppo in corrente.attivi:
+        _segna_varianti(gruppo.attivi)
         gruppi.append(
             {
                 "gruppo": gruppo,

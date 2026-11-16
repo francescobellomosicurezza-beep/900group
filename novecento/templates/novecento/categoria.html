@@ -26,12 +26,16 @@
   {% if form.non_field_errors %}<div class="messaggio error">{{ form.non_field_errors|join:" " }}</div>{% endif %}
 
   {% for blocco in gruppi %}
-    <section class="sezione" id="g{{ blocco.gruppo.pk }}" data-sezione="{{ blocco.gruppo.pk }}">
-      <div class="sezione-titolo">
+    <section class="sezione gruppo" id="g{{ blocco.gruppo.pk }}" data-sezione="{{ blocco.gruppo.pk }}">
+      <header class="gruppo-testa">
+        <span class="gruppo-indice">{{ forloop.counter }}</span>
         <h2>{{ blocco.gruppo.nome }}</h2>
-        <span>{{ blocco.righe|length }} variant{{ blocco.righe|length|pluralize:"e,i" }}</span>
-      </div>
-      <ul class="elenco card">
+        <span class="gruppo-conta">
+          <span class="pill-scelti" data-conteggio-gruppo="{{ blocco.gruppo.pk }}" {% if not blocco.selezionati %}hidden{% endif %}>{{ blocco.selezionati }}</span>
+          <span class="gruppo-tot">{{ blocco.righe|length }} variant{{ blocco.righe|length|pluralize:"e,i" }}</span>
+        </span>
+      </header>
+      <ul class="elenco">
         {% for articolo, campo, ultima in blocco.righe %}
           {% include "novecento/_riga_articolo.html" with valore=campo.value errori=campo.errors %}
         {% endfor %}

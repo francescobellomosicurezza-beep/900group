@@ -1,6 +1,11 @@
 <li class="articolo{% if valore %} attivo{% endif %}" data-nome="{{ articolo.nome|lower }} {{ articolo.codice|lower }}">
   <div class="articolo-info">
-    <label for="qta-{{ articolo.pk }}" class="articolo-nome">{{ articolo.nome }}</label>
+    {% if articolo.variante %}
+      <span class="articolo-base">{{ articolo.base }}</span>
+      <label for="qta-{{ articolo.pk }}" class="articolo-nome variante" aria-label="{{ articolo.nome }}">{{ articolo.variante|capfirst }}</label>
+    {% else %}
+      <label for="qta-{{ articolo.pk }}" class="articolo-nome">{{ articolo.nome }}</label>
+    {% endif %}
     <span class="articolo-meta">
       {% if articolo.codice %}<span class="codice">{{ articolo.codice }}</span>{% endif %}
       <span>{{ articolo.confezione }}</span>

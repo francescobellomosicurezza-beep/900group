@@ -702,3 +702,41 @@ class GmailDaAdminTest(TestCase):
 
         self.assertTrue(invia_ordine(ordine))
         self.assertEqual(mail.outbox[0].from_email, "Ordini Novecento <prova@gmail.com>")
+
+
+class VariantiTest(TestCase):
+    def _nomi(self, *nomi):
+        from types import SimpleNamespace
+
+        from .views import _segna_varianti
+
+        return [(a.base, a.variante) for a in _segna_varianti(SimpleNamespace(nome=n) for n in nomi)]
+
+    def test_parte_comune_iniziale(self):
+        self.assertEqual(
+            self._nomi("Coppette cartone baby", "Coppette cartone piccole", "Coppette cartone grandi"),
+            [("Coppette cartone", "baby"), ("Coppette cartone", "piccole"), ("Coppette cartone", "grandi")],
+        )
+
+    def test_nessuna_parte_comune_o_un_solo_articolo(self):
+        self.assertEqual(self._nomi("Sacher", "Torta soffice"), [("", ""), ("", "")])
+        self.assertEqual(self._nomi("Box palette"), [("", "")])
+
+    def test_nome_contenuto_in_altro(self):
+        self.assertEqual(self._nomi("Cornetto", "Cornetto vuoto"), [("", ""), ("", "")])
+
+    def test_mostrato_in_categoria(self):
+        Articolo.objects.all().delete()
+        Categoria.objects.all().delete()
+        account = get_user_model().objects.create_user("perugia", password=PASSWORD)
+        Sede.objects.create(nome="Perugia", slug="perugia", account=account)
+        cat = Categoria.objects.create(numero=1, nome="Gelateria")
+        gruppo = Gruppo.objects.create(categoria=cat, nome="Coppette")
+        for taglia in ["piccole", "medie"]:
+            Articolo.objects.create(gruppo=gruppo, nome=f"Coppette cartone {taglia}")
+        self.client.force_login(account)
+        self.client.get(reverse("novecento:scelta_sede"))
+        self.client.post(reverse("novecento:operatore"), {"nome": "A", "cognome": "B"})
+        r = self.client.get(reverse("novecento:categoria", args=[1]))
+        self.assertContains(r, '<span class="articolo-base">Coppette cartone</span>', html=True)
+        self.assertContains(r, ">Medie</label>")
