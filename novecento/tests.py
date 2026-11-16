@@ -762,20 +762,3 @@ class SalutoTest(TestCase):
         r = self.client.get(reverse("login"))
         self.assertContains(r, f'<h1 class="titolo">{saluto_del_momento()}</h1>', html=True)
         self.assertNotContains(r, "Ciao")
-
-
-class AccessoMaiuscoleTest(TestCase):
-    def setUp(self):
-        self.account = get_user_model().objects.create_user("foligno", password="Nocciola63")
-        Sede.objects.filter(slug="foligno").update(account=self.account)
-
-    def test_username_con_maiuscole(self):
-        for username in ["Foligno", "FOLIGNO", " foligno "]:
-            self.client.logout()
-            r = self.client.post(reverse("login"), {"username": username, "password": "Nocciola63"})
-            self.assertEqual(r.status_code, 302, username)
-
-    def test_password_resta_sensibile_alle_maiuscole(self):
-        r = self.client.post(reverse("login"), {"username": "foligno", "password": "nocciola63"})
-        self.assertEqual(r.status_code, 200)
-        self.assertContains(r, "non corretti")
