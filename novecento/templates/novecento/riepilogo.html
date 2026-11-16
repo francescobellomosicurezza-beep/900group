@@ -23,7 +23,7 @@
     {% for categoria, gruppi in albero.items %}
       <section class="card blocco-riepilogo">
         <div class="blocco-testa">
-          <h2><span class="blocco-icona" aria-hidden="true">{{ categoria.icona }}</span>{{ categoria.etichetta }}</h2>
+          <h2><span class="blocco-icona">{% include "novecento/_simbolo.html" with nome=categoria.simbolo %}</span>{{ categoria.etichetta }}</h2>
           <a href="{% url 'novecento:categoria' categoria.numero %}">Aggiungi</a>
         </div>
         {% for gruppo, righe in gruppi.items %}

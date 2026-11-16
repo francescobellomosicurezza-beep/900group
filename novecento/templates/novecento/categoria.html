@@ -4,7 +4,7 @@
 
 {% block barra_sinistra %}
   <a href="{% url 'novecento:categorie' %}" class="btn-tondo" aria-label="Tutte le categorie" data-salva-e-vai>{% include "novecento/_icona.html" with nome="indietro" %}</a>
-  <span class="barra-centro">{{ categoria.icona }} {{ categoria.etichetta }}</span>
+  <span class="barra-centro">{% include "novecento/_simbolo.html" with nome=categoria.simbolo %}{{ categoria.etichetta }}</span>
 {% endblock %}
 
 {% block avviso %}{% endblock %}
@@ -42,7 +42,7 @@
   <div class="azioni">
     {% if successiva %}
       <button type="submit" name="vai" value="{{ successiva.numero }}" class="btn btn-secondario">
-        Avanti: {{ successiva.icona }} {{ successiva.etichetta }} {% include "novecento/_icona.html" with nome="freccia" %}
+        Avanti: {{ successiva.etichetta }} {% include "novecento/_icona.html" with nome="freccia" %}
       </button>
     {% endif %}
     <button type="submit" name="vai" value="" class="btn btn-testo">Torna alle categorie</button>

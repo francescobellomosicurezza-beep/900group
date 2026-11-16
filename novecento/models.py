@@ -109,6 +109,19 @@ class Sede(models.Model):
 class Categoria(models.Model):
     """Macrocategoria del listino (es. 1 - Accessori gelateria e yogurteria)."""
 
+    class Simbolo(models.TextChoices):
+        GELATO = "gelato", "Cono gelato"
+        SALSE = "salse", "Barattolo salse"
+        BAR = "bar", "Tazza caffè"
+        ASPORTO = "asporto", "Busta asporto"
+        TORTE = "torte", "Torta"
+        CROSTATE = "crostate", "Fetta di crostata"
+        SURGELATI = "surgelati", "Fiocco di neve"
+        CORNETTI = "cornetti", "Cornetto"
+        BEVANDE = "bevande", "Bottiglia"
+        PULIZIA = "pulizia", "Pulizia"
+        GENERICO = "generico", "Scatola"
+
     numero = models.PositiveSmallIntegerField("numero", unique=True)
     nome = models.CharField("nome", max_length=120, unique=True)
     nome_breve = models.CharField(
@@ -124,7 +137,13 @@ class Categoria(models.Model):
         help_text="Esempi di contenuto, mostrati sotto il nome.",
     )
     icona = models.CharField(
-        "icona", max_length=8, blank=True, help_text="Un'emoji, es. 🍦"
+        "emoji", max_length=8, blank=True, help_text="Facoltativa, es. 🍦"
+    )
+    simbolo = models.CharField(
+        "icona nell'app",
+        max_length=20,
+        choices=Simbolo.choices,
+        default=Simbolo.GENERICO,
     )
     attiva = models.BooleanField("attiva", default=True)
 

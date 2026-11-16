@@ -3,7 +3,7 @@
     {% if a.stato == "inviato" %}
       <div class="stato ok" role="status">
         <span class="punto" aria-hidden="true"></span>
-        <span>Ordine di oggi inviato alle <strong>{{ a.ora|time:"H:i" }}</strong>{% if a.ordine.operatore %} · {{ a.ordine.operatore }}{% endif %}</span>
+        <span>Ordine inviato alle <strong>{{ a.ora|time:"H:i" }}</strong>{% if a.ordine.nome %} da {{ a.ordine.nome }}{% endif %}</span>
       </div>
     {% elif a.stato == "in_ritardo" %}
       <div class="stato ko" role="alert">

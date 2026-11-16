@@ -18,6 +18,9 @@ Ultimo aggiornamento: 16/11/2026
 - **Interfaccia premium** (16/11/2026): barra compatta, home a griglia con nomi brevi delle
   categorie, sottocategorie a etichette scorrevoli, "+" che diventa "− n +", carrello flottante,
   riepilogo modificabile, conferma animata, app installabile sulla schermata Home (manifest + icone).
+- **Identità del marchio** (dal sito gelaterianovecento.it): logo originale in barra, accesso e
+  icona dell'app; colori esatti del logo (#53352A, #BC9944); foto "onde" del sito come sfondo;
+  icone disegnate per categoria (scelta da admin → Categorie → «icona nell'app»).
 
 ## Da fare (prossimi passi)
 1. **Email** (la fa il titolare, account dell'azienda). Due opzioni:

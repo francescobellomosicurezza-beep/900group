@@ -432,7 +432,7 @@ class AvvisoOrdineTest(TestCase):
             self.assertContains(r, "10:00")
         Ordine.objects.create(sede=self.sede, nome="Anna", cognome="Verdi")
         r = self.client.get(reverse("novecento:operatore"))
-        self.assertContains(r, "Ordine di oggi inviato")
+        self.assertContains(r, "Ordine inviato alle")
 
     def test_promemoria_calendario(self):
         self.client.force_login(self.account)

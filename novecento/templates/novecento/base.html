@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#F6F1EA">
+  <meta name="theme-color" content="{% block colore_tema %}#F6F1EA{% endblock %}">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Novecento">
@@ -20,11 +20,10 @@
 </head>
 <body>
 {% block corpo %}
-  <header class="barra">
+  <header class="barra {% block barra_classe %}{% endblock %}">
     {% block barra_sinistra %}
-      <a href="{% url 'novecento:scelta_sede' %}" class="barra-logo" aria-label="Novecento, inizio">
-        <span class="marchio">900</span>
-        <span class="scritta">Novecento</span>
+      <a href="{% url 'novecento:scelta_sede' %}" class="barra-logo" aria-label="Gelateria Novecento, inizio">
+        <img src="{% static 'novecento/img/logo.png' %}" alt="Gelateria Novecento" width="119" height="40">
       </a>
       <span class="barra-centro"></span>
     {% endblock %}

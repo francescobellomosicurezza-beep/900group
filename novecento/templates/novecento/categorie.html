@@ -1,53 +1,68 @@
 {% extends "novecento/base.html" %}
 {% load static %}
 {% block title %}Ordine{% endblock %}
+{% block barra_classe %}scura{% endblock %}
+{% block colore_tema %}#2E1A13{% endblock %}
+{% block barra_sinistra %}
+  <a href="{% url 'novecento:scelta_sede' %}" class="barra-logo" aria-label="Gelateria Novecento, inizio">
+    <img src="{% static 'novecento/img/scritta.png' %}" alt="Gelateria Novecento" width="101" height="34">
+  </a>
+  <span class="barra-centro"></span>
+{% endblock %}
+{% block avviso %}{% endblock %}
+
 {% block content %}
-<p class="saluto">Ciao {{ bozza.nome }} 👋</p>
-<h1 class="titolo">Cosa ti serve oggi?</h1>
+<section class="eroe">
+  <p class="saluto">Ciao {{ bozza.nome }},</p>
+  <h1 class="titolo">cosa ti serve oggi?</h1>
+  {% include "novecento/_avviso_ordine.html" %}
+</section>
 
-<form method="get" action="{% url 'novecento:cerca' %}" class="ricerca" role="search">
-  {% include "novecento/_icona.html" with nome="cerca" %}
-  <input type="search" name="q" placeholder="Cerca articolo o codice" aria-label="Cerca articolo o codice" minlength="2" enterkeyhint="search">
-</form>
-
-{% if ultimo_ordine and not articoli_selezionati %}
-  <form method="post" action="{% url 'novecento:ripeti_ultimo' %}">
-    {% csrf_token %}
-    <button type="submit" class="ripeti">
-      <span class="ripeti-icona">{% include "novecento/_icona.html" with nome="ripeti" %}</span>
-      <span class="ripeti-testo">
-        <strong>Ripeti l'ultimo ordine</strong>
-        <span>{{ ultimo_ordine.creato_il|date:"l j F"|lower }} · {{ ultimo_ordine.righe.count }} articoli</span>
-      </span>
-      <span class="freccia" aria-hidden="true">›</span>
-    </button>
+<div class="sotto-eroe">
+  <form method="get" action="{% url 'novecento:cerca' %}" class="ricerca" role="search">
+    {% include "novecento/_icona.html" with nome="cerca" %}
+    <input type="search" name="q" placeholder="Cerca articolo o codice" aria-label="Cerca articolo o codice" minlength="2" enterkeyhint="search">
   </form>
-{% endif %}
 
-{% if categorie %}
-  <p class="etichetta-sezione">Categorie</p>
-  <div class="griglia">
-    {% for categoria in categorie %}
-      <a href="{% url 'novecento:categoria' categoria.numero %}" class="tessera{% if categoria.selezionati %} scelta{% endif %}" data-categoria="{{ categoria.pk }}">
-        <span class="tessera-icona" aria-hidden="true">{{ categoria.icona|default:"📦" }}</span>
-        {% if categoria.selezionati %}
-          <span class="bollino" aria-label="{{ categoria.selezionati }} scelt{{ categoria.selezionati|pluralize:'o,i' }}">{{ categoria.selezionati }}</span>
-        {% else %}
-          <span class="tessera-numero">{{ categoria.numero|stringformat:"02d" }}</span>
-        {% endif %}
-        <span>
-          <span class="tessera-nome">{{ categoria.etichetta }}</span>
-          <span class="tessera-info" style="display:block">
-            {% if categoria.selezionati %}{{ categoria.selezionati }} scelt{{ categoria.selezionati|pluralize:"o,i" }} su {{ categoria.totale_articoli }}{% else %}{{ categoria.totale_articoli }} articol{{ categoria.totale_articoli|pluralize:"o,i" }}{% endif %}
-          </span>
+  {% if ultimo_ordine and not articoli_selezionati %}
+    <form method="post" action="{% url 'novecento:ripeti_ultimo' %}">
+      {% csrf_token %}
+      <button type="submit" class="ripeti">
+        <span class="ripeti-icona">{% include "novecento/_icona.html" with nome="ripeti" %}</span>
+        <span class="ripeti-testo">
+          <strong>Ripeti l'ultimo ordine</strong>
+          <span>{{ ultimo_ordine.creato_il|date:"l j F"|lower }} · {{ ultimo_ordine.righe.count }} articoli</span>
         </span>
-      </a>
-    {% endfor %}
-  </div>
-{% else %}
-  <div class="vuoto"><div class="emoji">📦</div>Nessun articolo ordinabile. Contatta l'amministratore.</div>
-{% endif %}
+        <span class="freccia" aria-hidden="true">›</span>
+      </button>
+    </form>
+  {% endif %}
 
-{% include "novecento/_pulsante_promemoria.html" %}
+  {% if categorie %}
+    <p class="etichetta-sezione">Categorie</p>
+    <div class="griglia">
+      {% for categoria in categorie %}
+        <a href="{% url 'novecento:categoria' categoria.numero %}" class="tessera{% if categoria.selezionati %} scelta{% endif %}" data-categoria="{{ categoria.pk }}">
+          <span class="tessera-icona">{% include "novecento/_simbolo.html" with nome=categoria.simbolo %}</span>
+          {% if categoria.selezionati %}
+            <span class="bollino" aria-label="{{ categoria.selezionati }} scelt{{ categoria.selezionati|pluralize:'o,i' }}">{{ categoria.selezionati }}</span>
+          {% else %}
+            <span class="tessera-numero">{{ categoria.numero|stringformat:"02d" }}</span>
+          {% endif %}
+          <span>
+            <span class="tessera-nome">{{ categoria.etichetta }}</span>
+            <span class="tessera-info" style="display:block">
+              {% if categoria.selezionati %}{{ categoria.selezionati }} scelt{{ categoria.selezionati|pluralize:"o,i" }} su {{ categoria.totale_articoli }}{% else %}{{ categoria.totale_articoli }} articol{{ categoria.totale_articoli|pluralize:"o,i" }}{% endif %}
+            </span>
+          </span>
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="vuoto"><div class="emoji">📦</div>Nessun articolo ordinabile. Contatta l'amministratore.</div>
+  {% endif %}
+
+  {% include "novecento/_pulsante_promemoria.html" %}
+</div>
 {% include "novecento/_barra_carrello.html" %}
 {% endblock %}
