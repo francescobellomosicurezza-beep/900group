@@ -12,8 +12,8 @@
     <div class="foglio-interno">
       <div class="maniglia" aria-hidden="true"></div>
       <p class="occhiello">Area riservata · Punti vendita</p>
-      <h1 class="titolo">Accedi al tuo punto vendita</h1>
-      <p class="sottotitolo">Inserisci le credenziali della sede.</p>
+      <h1 class="titolo">{{ saluto }}</h1>
+      <p class="sottotitolo">Accedi con le credenziali del tuo punto vendita.</p>
 
       <form method="post" novalidate>
         {% csrf_token %}

@@ -75,6 +75,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "novecento.context_processors.avviso_ordine",
+                "novecento.context_processors.saluto",
             ],
         },
     },
@@ -105,6 +106,16 @@ USE_THOUSAND_SEPARATOR = True
 STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# In produzione i file statici hanno un nome con impronta (es. novecento.3f9a1c.css):
+# a ogni aggiornamento i telefoni scaricano la grafica nuova invece di quella in memoria.
+if not DEBUG:
+    STORAGES = {
+        "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
+        },
+    }
 
 # Email
 EMAIL_BACKEND = os.environ.get(

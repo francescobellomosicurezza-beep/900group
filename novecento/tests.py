@@ -740,3 +740,25 @@ class VariantiTest(TestCase):
         r = self.client.get(reverse("novecento:categoria", args=[1]))
         self.assertContains(r, '<span class="articolo-base">Coppette cartone</span>', html=True)
         self.assertContains(r, ">Medie</label>")
+
+
+class SalutoTest(TestCase):
+    def test_saluto_in_base_all_ora(self):
+        from .context_processors import saluto_del_momento
+
+        def alle(ora):
+            return timezone.make_aware(datetime.datetime(2026, 11, 16, ora, 30))
+
+        self.assertEqual(saluto_del_momento(alle(8)), "Buongiorno")
+        self.assertEqual(saluto_del_momento(alle(12)), "Buongiorno")
+        self.assertEqual(saluto_del_momento(alle(13)), "Buon pomeriggio")
+        self.assertEqual(saluto_del_momento(alle(17)), "Buon pomeriggio")
+        self.assertEqual(saluto_del_momento(alle(18)), "Buonasera")
+        self.assertEqual(saluto_del_momento(alle(2)), "Buonasera")
+
+    def test_saluto_nella_pagina_di_accesso(self):
+        from .context_processors import saluto_del_momento
+
+        r = self.client.get(reverse("login"))
+        self.assertContains(r, f'<h1 class="titolo">{saluto_del_momento()}</h1>', html=True)
+        self.assertNotContains(r, "Ciao")

@@ -1,4 +1,20 @@
+from django.utils import timezone
+
 from .models import Sede
+
+
+def saluto_del_momento(adesso=None):
+    """Buongiorno (5-12), Buon pomeriggio (13-17), Buonasera (18-4), ora italiana."""
+    ora = timezone.localtime(adesso or timezone.now()).hour
+    if 5 <= ora < 13:
+        return "Buongiorno"
+    if 13 <= ora < 18:
+        return "Buon pomeriggio"
+    return "Buonasera"
+
+
+def saluto(request):
+    return {"saluto": saluto_del_momento()}
 
 
 def avviso_ordine(request):
