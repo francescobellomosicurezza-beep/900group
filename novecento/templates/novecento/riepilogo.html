@@ -1,63 +1,71 @@
 {% extends "novecento/base.html" %}
+{% load static %}
 {% block title %}Riepilogo{% endblock %}
+
+{% block barra_sinistra %}
+  <a href="{% url 'novecento:categorie' %}" class="btn-tondo" aria-label="Continua a ordinare">{% include "novecento/_icona.html" with nome="indietro" %}</a>
+  <span class="barra-centro">Il tuo ordine</span>
+{% endblock %}
+
 {% block content %}
-<nav class="nv-briciole" aria-label="Percorso">
-  <a href="{% url 'novecento:categorie' %}">‹ Continua a ordinare</a>
-  <span>900 {{ sede.nome }} · {{ bozza.nome }} {{ bozza.cognome }}</span>
-</nav>
-<h1 class="nv-title">- Riepilogo -</h1>
-
 {% if not albero %}
-  <div class="alert alert-warning">Non hai ancora selezionato nessun articolo.</div>
-  <a href="{% url 'novecento:categorie' %}" class="btn btn-nv btn-lg w-100">Scegli gli articoli</a>
+  <div class="vuoto">
+    <div class="emoji">🛒</div>
+    <p>Non hai ancora scelto nessun articolo.</p>
+  </div>
+  <a href="{% url 'novecento:categorie' %}" class="btn btn-primario">Scegli gli articoli</a>
 {% else %}
-  <p class="text-center text-muted small">{{ totale_righe }} articol{{ totale_righe|pluralize:"o,i" }} · controlla le quantità prima di inviare</p>
+  <h1 class="titolo titolo-m">Controlla e invia</h1>
+  <p class="sottotitolo">900 {{ sede.nome }} · {{ bozza.nome }} {{ bozza.cognome }}</p>
 
-  {% for categoria, gruppi in albero.items %}
-    <section class="nv-riepilogo-cat">
-      <div class="nv-riepilogo-cat-head">
-        <h2 class="nv-subtitle"><span class="nv-categoria-numero">{{ categoria.numero }}</span> {{ categoria.nome }}</h2>
-        <a href="{% url 'novecento:categoria' categoria.numero %}" class="small">Modifica</a>
-      </div>
-      {% for gruppo, righe in gruppi.items %}
-        <h3 class="nv-riepilogo-gruppo">{{ gruppo.nome }}</h3>
-        <ul class="list-group mb-2">
-          {% for articolo, quantita, etichetta in righe %}
-            <li class="list-group-item d-flex justify-content-between align-items-center gap-2">
-              <span>
-                {{ articolo.nome }}
-                {% if articolo.codice %}<small class="nv-codice">{{ articolo.codice }}</small>{% endif %}
-              </span>
-              <span class="nv-qta text-nowrap">{{ quantita }} <small>{{ etichetta }}</small></span>
-            </li>
-          {% endfor %}
-        </ul>
-      {% endfor %}
-    </section>
-  {% endfor %}
-
-  <form method="post" novalidate class="mt-4">
+  <div id="form-ordine" data-url-quantita="{% url 'novecento:aggiorna_quantita' %}">
     {% csrf_token %}
-    <div class="mb-3">
-      <label for="{{ form.note.id_for_label }}" class="form-label fw-semibold">{{ form.note.label }}</label>
+    {% for categoria, gruppi in albero.items %}
+      <section class="card blocco-riepilogo">
+        <div class="blocco-testa">
+          <h2><span class="blocco-icona" aria-hidden="true">{{ categoria.icona }}</span>{{ categoria.etichetta }}</h2>
+          <a href="{% url 'novecento:categoria' categoria.numero %}">Aggiungi</a>
+        </div>
+        {% for gruppo, righe in gruppi.items %}
+          <div class="blocco-gruppo">{{ gruppo.nome }}</div>
+          <ul class="elenco">
+            {% for articolo, valore, etichetta in righe %}
+              {% include "novecento/_riga_articolo.html" %}
+            {% endfor %}
+          </ul>
+        {% endfor %}
+      </section>
+    {% endfor %}
+  </div>
+
+  <div class="messaggio warning" data-ordine-vuoto hidden>Hai tolto tutti gli articoli: aggiungine almeno uno per inviare.</div>
+  <div class="totale-ordine">
+    <span>Articoli nell'ordine</span>
+    <span data-carrello-totale>{{ totale_righe }}</span>
+  </div>
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+    <div class="campo">
+      <label for="{{ form.note.id_for_label }}">Note per il laboratorio <span style="font-weight:400;color:var(--muted)">(facoltative)</span></label>
       {{ form.note }}
-      {% for error in form.note.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+      {% for error in form.note.errors %}<p class="errore">{{ error }}</p>{% endfor %}
     </div>
-    <div class="nv-actions d-grid gap-2">
-      <button type="submit" class="btn btn-nv btn-lg" id="btn-invia">Invia ordine al laboratorio</button>
-      <a href="{% url 'novecento:categorie' %}" class="btn btn-outline-nv btn-lg">Aggiungi altri articoli</a>
+    <div class="azioni">
+      <button type="submit" class="btn btn-primario" id="btn-invia">Invia al laboratorio {% include "novecento/_icona.html" with nome="freccia" %}</button>
     </div>
   </form>
 {% endif %}
 
-<form method="post" action="{% url 'novecento:annulla' %}" class="text-center mt-4"
+<form method="post" action="{% url 'novecento:annulla' %}" class="azioni"
       onsubmit="return confirm('Annullare l\'ordine? Le quantità inserite andranno perse.');">
   {% csrf_token %}
-  <button type="submit" class="btn btn-link text-danger">Annulla ordine</button>
+  <button type="submit" class="btn btn-testo pericolo">Annulla ordine</button>
 </form>
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static 'novecento/ordine.js' %}"></script>
 <script>
   (function () {
     var btn = document.getElementById("btn-invia");

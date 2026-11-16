@@ -132,7 +132,8 @@ class FlussoOrdineTest(TestCase):
         r = self.client.get(reverse("novecento:riepilogo"))
         self.assertContains(r, "Coni e cialde")
         self.assertContains(r, "Bicchiere caffè")
-        self.assertContains(r, "3 <small>cartoni</small>")
+        self.assertContains(r, 'value="3"')
+        self.assertContains(r, 'data-carrello-totale>2<')
 
         r = self.client.post(reverse("novecento:riepilogo"), {"note": "Consegna entro le 10"})
         self.assertRedirects(r, reverse("novecento:conferma"))
@@ -189,7 +190,7 @@ class FlussoOrdineTest(TestCase):
         self.client.post(reverse("novecento:operatore"), {"nome": "Mario", "cognome": "Rossi"})
 
         r = self.client.get(reverse("novecento:categoria", args=[1]))
-        self.assertContains(r, "Ultimo ordine: 4")
+        self.assertContains(r, "ultima volta 4")
 
         r = self.client.post(reverse("novecento:ripeti_ultimo"))
         self.assertRedirects(r, reverse("novecento:riepilogo"))

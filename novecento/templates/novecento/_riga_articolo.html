@@ -1,20 +1,19 @@
-<li class="nv-articolo{% if valore %} selected{% endif %}" data-nome="{{ articolo.nome|lower }} {{ articolo.codice|lower }}">
-  <div class="nv-articolo-info">
-    <label for="qta-{{ articolo.pk }}" class="nv-articolo-nome">{{ articolo.nome }}</label>
-    <span class="nv-articolo-meta">
-      {% if articolo.codice %}<span class="nv-codice">{{ articolo.codice }}</span>{% endif %}
-      {{ articolo.confezione }}
-      {% if mostra_percorso %}· {{ articolo.gruppo.nome }}{% endif %}
+<li class="articolo{% if valore %} attivo{% endif %}" data-nome="{{ articolo.nome|lower }} {{ articolo.codice|lower }}">
+  <div class="articolo-info">
+    <label for="qta-{{ articolo.pk }}" class="articolo-nome">{{ articolo.nome }}</label>
+    <span class="articolo-meta">
+      {% if articolo.codice %}<span class="codice">{{ articolo.codice }}</span>{% endif %}
+      <span>{{ articolo.confezione }}</span>
+      {% if ultima %}<span class="ultimo" title="Quantità dell'ultimo ordine">ultima volta {{ ultima }}</span>{% endif %}
     </span>
-    {% if ultima %}<span class="nv-ultima">Ultimo ordine: {{ ultima }}</span>{% endif %}
-    {% if errori %}{% for error in errori %}<span class="text-danger small d-block">{{ error }}</span>{% endfor %}{% endif %}
+    {% if mostra_percorso %}<span class="percorso">{{ articolo.gruppo.categoria.etichetta }} › {{ articolo.gruppo.nome }}</span>{% endif %}
+    {% for error in errori %}<p class="errore">{{ error }}</p>{% endfor %}
   </div>
-  <div class="nv-stepper">
-    <button type="button" class="btn btn-outline-nv" data-step="-1" aria-label="Diminuisci {{ articolo.nome }}">−</button>
+  <div class="qta">
+    <button type="button" data-step="-1" aria-label="Togli uno: {{ articolo.nome }}">{% include "novecento/_icona.html" with nome="meno" %}</button>
     <input type="number" name="art_{{ articolo.pk }}" id="qta-{{ articolo.pk }}" value="{{ valore|default_if_none:'' }}"
-           class="form-control text-center qty-input" inputmode="numeric" min="0" max="9999" step="1"
-           data-articolo="{{ articolo.pk }}" data-gruppo="{{ articolo.gruppo_id }}"
+           inputmode="numeric" min="0" max="9999" step="1" data-articolo="{{ articolo.pk }}" data-gruppo="{{ articolo.gruppo_id }}"
            aria-label="Quantità {{ articolo.nome }}">
-    <button type="button" class="btn btn-outline-nv" data-step="1" aria-label="Aumenta {{ articolo.nome }}">+</button>
+    <button type="button" data-step="1" aria-label="Aggiungi uno: {{ articolo.nome }}">{% include "novecento/_icona.html" with nome="piu" %}</button>
   </div>
 </li>

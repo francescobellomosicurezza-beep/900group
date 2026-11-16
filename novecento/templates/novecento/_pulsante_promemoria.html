@@ -1,17 +1,15 @@
 {% if avviso_sede.orario_ordine and avviso_sede.giorni_ordine %}
-  <details class="nv-promemoria">
-    <summary>📅 Ricevi il promemoria sul telefono</summary>
+  <details class="card promemoria">
+    <summary>
+      <span class="ripeti-icona">{% include "novecento/_icona.html" with nome="calendario" %}</span>
+      <span>Promemoria sul telefono</span>
+    </summary>
     <p>
-      Aggiunge al calendario del telefono un promemoria
-      <strong>{{ avviso_sede.giorni_display }}</strong> alle
-      <strong>{{ avviso_sede.orario_ordine|time:"H:i" }}</strong>,
-      con avviso {{ avviso_sede.preavviso_minuti }} minuti prima.
+      Aggiunge al calendario un avviso <strong>{{ avviso_sede.giorni_display }}</strong>,
+      {{ avviso_sede.preavviso_minuti }} minuti prima delle <strong>{{ avviso_sede.orario_ordine|time:"H:i" }}</strong>.
+      Si fa una volta sola per telefono.
     </p>
-    <a href="{% url 'novecento:promemoria' %}" class="btn btn-outline-nv w-100">Aggiungi al calendario</a>
-    <p class="small text-muted mt-2 mb-0">
-      iPhone: tocca il pulsante e poi «Aggiungi tutto».
-      Android: apri il file scaricato e scegli l'app Calendario.
-      Va fatto una sola volta per telefono.
-    </p>
+    <a href="{% url 'novecento:promemoria' %}" class="btn btn-secondario">Aggiungi al calendario</a>
+    <p style="margin-bottom:0">iPhone: tocca «Aggiungi tutto». Android: apri il file e scegli Calendario.</p>
   </details>
 {% endif %}

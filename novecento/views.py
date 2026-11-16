@@ -7,6 +7,7 @@ from django.db import transaction
 from django.db.models import Max, Prefetch, Q
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.templatetags.static import static
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
@@ -522,3 +523,31 @@ def promemoria_calendario(request):
     risposta = HttpResponse(contenuto, content_type="text/calendar; charset=utf-8")
     risposta["Content-Disposition"] = f'attachment; filename="promemoria-ordine-{sede.slug}.ics"'
     return risposta
+
+
+def manifest(request):
+    """Manifest dell'app installabile (schermata Home del telefono)."""
+    icona = static("novecento/icone/icona-192.png")
+    dati = {
+        "name": "Novecento Ordini",
+        "short_name": "Novecento",
+        "description": "Ordini dei punti vendita Gelateria Novecento",
+        "lang": "it",
+        "start_url": "/",
+        "scope": "/",
+        "display": "standalone",
+        "orientation": "portrait",
+        "background_color": "#F6F1EA",
+        "theme_color": "#F6F1EA",
+        "icons": [
+            {"src": icona, "sizes": "192x192", "type": "image/png"},
+            {"src": static("novecento/icone/icona-512.png"), "sizes": "512x512", "type": "image/png"},
+            {
+                "src": static("novecento/icone/icona-maskable-512.png"),
+                "sizes": "512x512",
+                "type": "image/png",
+                "purpose": "maskable",
+            },
+        ],
+    }
+    return JsonResponse(dati, content_type="application/manifest+json")

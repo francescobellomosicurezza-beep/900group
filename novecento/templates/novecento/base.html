@@ -1,54 +1,78 @@
 {% load static %}<!doctype html>
-<html lang="it">
+<html lang="it" class="no-js">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#4E2E22">
-  <title>{% block title %}Ordini{% endblock %} · Gelateria Novecento</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#F6F1EA">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Novecento">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>{% block title %}Ordini{% endblock %} · Novecento</title>
+  <link rel="manifest" href="{% url 'novecento:manifest' %}">
+  <link rel="icon" type="image/png" href="{% static 'novecento/icone/favicon.png' %}">
+  <link rel="apple-touch-icon" href="{% static 'novecento/icone/apple-touch-icon.png' %}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600&family=Lobster&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  <link href="{% static 'vendor/bootstrap/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@500;600&family=Lobster&display=swap" rel="stylesheet">
   <link href="{% static 'novecento/novecento.css' %}" rel="stylesheet">
+  <script>document.documentElement.classList.remove("no-js");</script>
 </head>
 <body>
-  <header class="nv-header">
-    <a href="{% url 'novecento:scelta_sede' %}" class="nv-logo text-decoration-none">
-      <span class="nv-logo-top">GELATERIA</span>
-      <span class="nv-logo-main">Novecento</span>
-    </a>
+{% block corpo %}
+  <header class="barra">
+    {% block barra_sinistra %}
+      <a href="{% url 'novecento:scelta_sede' %}" class="barra-logo" aria-label="Novecento, inizio">
+        <span class="marchio">900</span>
+        <span class="scritta">Novecento</span>
+      </a>
+      <span class="barra-centro"></span>
+    {% endblock %}
+
+    {% if user.is_authenticated %}
+      <details class="menu">
+        <summary aria-label="Menu">
+          <span class="menu-pallino">{% if avviso_sede %}{{ avviso_sede.nome|slice:":1" }}{% else %}{{ user.username|slice:":1"|upper }}{% endif %}</span>
+          {% if avviso_sede %}{{ avviso_sede.nome }}{% else %}{{ user.username }}{% endif %}
+        </summary>
+        <div class="menu-pannello">
+          <div class="menu-intestazione">
+            {% if avviso_sede %}900 {{ avviso_sede.nome }} · {% endif %}accesso <strong>{{ user.username }}</strong>
+          </div>
+          {% if avviso_sede.orario_ordine and avviso_sede.giorni_ordine %}
+            <a class="voce" href="{% url 'novecento:promemoria' %}">📅 Promemoria sul telefono</a>
+          {% endif %}
+          {% if user.is_staff or user.is_superuser %}
+            <a class="voce" href="{% url 'novecento:scelta_sede' %}">🔁 Cambia sede</a>
+            <a class="voce" href="{% url 'admin:index' %}">⚙️ Amministrazione</a>
+          {% endif %}
+          <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="voce pericolo">↩ Esci</button>
+          </form>
+        </div>
+      </details>
+    {% endif %}
   </header>
-  {% if user.is_authenticated %}
-  <div class="nv-account container">
-    <span>Accesso: <strong>{{ user.username }}</strong></span>
-    <form method="post" action="{% url 'logout' %}" class="d-inline">
-      {% csrf_token %}
-      <button type="submit" class="btn btn-link btn-sm p-0 nv-esci">Esci</button>
-    </form>
-  </div>
-  {% endif %}
 
-  {% if passo and passo <= 4 %}
-  <nav class="nv-steps container" aria-label="Avanzamento ordine">
-    <ol>
-      <li class="{% if passo >= 1 %}done{% endif %}{% if passo == 1 %} current{% endif %}">Sede</li>
-      <li class="{% if passo >= 2 %}done{% endif %}{% if passo == 2 %} current{% endif %}">Chi sei</li>
-      <li class="{% if passo >= 3 %}done{% endif %}{% if passo == 3 %} current{% endif %}">Articoli</li>
-      <li class="{% if passo >= 4 %}done{% endif %}{% if passo == 4 %} current{% endif %}">Invio</li>
-    </ol>
-  </nav>
-  {% endif %}
-
-  <main class="container nv-main">
-    {% include "novecento/_avviso_ordine.html" %}
+  <main class="pagina">
+    {% block avviso %}{% include "novecento/_avviso_ordine.html" %}{% endblock %}
     {% if messages %}
-      {% for message in messages %}
-        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}" role="alert">{{ message }}</div>
-      {% endfor %}
+      <div class="messaggi">
+        {% for message in messages %}<div class="messaggio {{ message.tags }}" role="status">{{ message }}</div>{% endfor %}
+      </div>
     {% endif %}
     {% block content %}{% endblock %}
   </main>
+{% endblock %}
 
-  {% block extra_js %}{% endblock %}
+<script>
+  document.addEventListener("click", function (e) {
+    document.querySelectorAll("details.menu[open]").forEach(function (m) {
+      if (!m.contains(e.target)) m.removeAttribute("open");
+    });
+  });
+</script>
+{% block extra_js %}{% endblock %}
 </body>
 </html>

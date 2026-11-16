@@ -1,11 +1,14 @@
-<div class="nv-carrello" id="nv-carrello">
-  <div class="nv-carrello-info">
-    <span class="nv-carrello-numero" data-carrello-totale>{{ articoli_selezionati }}</span>
-    <span class="nv-carrello-testo">articoli<br>nell'ordine</span>
-  </div>
+<div class="carrello{% if articoli_selezionati %} visibile{% endif %}" id="nv-carrello">
   {% if pulsante_form %}
-    <button type="submit" name="vai" value="riepilogo" class="btn btn-nv btn-lg">Riepilogo ›</button>
+    <button type="submit" name="vai" value="riepilogo">
   {% else %}
-    <a href="{% url 'novecento:riepilogo' %}" class="btn btn-nv btn-lg">Riepilogo ›</a>
+    <a href="{% url 'novecento:riepilogo' %}">
   {% endif %}
+      <span class="carrello-conta" data-carrello-totale>{{ articoli_selezionati }}</span>
+      <span class="carrello-testo">
+        <strong>Vedi ordine</strong>
+        <span data-carrello-etichetta>articol{{ articoli_selezionati|pluralize:"o,i" }} nell'ordine</span>
+      </span>
+      {% include "novecento/_icona.html" with nome="freccia" %}
+  {% if pulsante_form %}</button>{% else %}</a>{% endif %}
 </div>

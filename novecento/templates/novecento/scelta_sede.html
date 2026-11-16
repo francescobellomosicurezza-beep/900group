@@ -1,30 +1,26 @@
 {% extends "novecento/base.html" %}
 {% block title %}Punto vendita{% endblock %}
+{% block avviso %}{% endblock %}
 {% block content %}
-<h1 class="nv-title">- Nuovo ordine -</h1>
-<p class="text-center text-muted mb-4">Accesso amministratore: seleziona il punto vendita.</p>
+<h1 class="titolo">Per quale sede ordini?</h1>
+<p class="sottotitolo">Accesso amministratore: scegli il punto vendita.</p>
 
 {% if not sedi %}
-  <div class="alert alert-warning">Nessun punto vendita attivo. Aggiungilo dal pannello di amministrazione.</div>
+  <div class="vuoto"><div class="emoji">🏪</div>Nessun punto vendita attivo. Aggiungilo dall'amministrazione.</div>
 {% else %}
 <form method="post" novalidate>
   {% csrf_token %}
-  <div class="nv-sedi">
+  <div class="sedi-scelta">
     {% for sede in sedi %}
-      <input type="radio" class="btn-check" name="sede" id="sede-{{ sede.pk }}" value="{{ sede.pk }}"
-             {% if form.sede.value|stringformat:"s" == sede.pk|stringformat:"s" %}checked{% endif %} required>
-      <label class="nv-sede-card" for="sede-{{ sede.pk }}">
-        <span class="nv-sede-900">900</span>
-        <span class="nv-sede-nome">{{ sede.nome }}</span>
-        {% if sede.indirizzo %}<span class="nv-sede-indirizzo">{{ sede.indirizzo }}</span>{% endif %}
-      </label>
+      <div>
+        <input type="radio" name="sede" id="sede-{{ sede.pk }}" value="{{ sede.pk }}"
+               {% if form.sede.value|stringformat:"s" == sede.pk|stringformat:"s" %}checked{% endif %} required>
+        <label for="sede-{{ sede.pk }}"><span class="marchio">900</span> {{ sede.nome }}</label>
+      </div>
     {% endfor %}
   </div>
-  {% for error in form.sede.errors %}<div class="text-danger small mt-2">{{ error }}</div>{% endfor %}
-
-  <div class="nv-actions">
-    <button type="submit" class="btn btn-nv btn-lg w-100">Continua</button>
-  </div>
+  {% for error in form.sede.errors %}<p class="errore">{{ error }}</p>{% endfor %}
+  <div class="azioni"><button type="submit" class="btn btn-primario">Continua</button></div>
 </form>
 {% endif %}
 {% endblock %}

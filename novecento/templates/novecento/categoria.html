@@ -1,47 +1,51 @@
 {% extends "novecento/base.html" %}
 {% load static %}
-{% block title %}{{ categoria.nome }}{% endblock %}
+{% block title %}{{ categoria.etichetta }}{% endblock %}
+
+{% block barra_sinistra %}
+  <a href="{% url 'novecento:categorie' %}" class="btn-tondo" aria-label="Tutte le categorie" data-salva-e-vai>{% include "novecento/_icona.html" with nome="indietro" %}</a>
+  <span class="barra-centro">{{ categoria.icona }} {{ categoria.etichetta }}</span>
+{% endblock %}
+
+{% block avviso %}{% endblock %}
+
 {% block content %}
-<nav class="nv-briciole" aria-label="Percorso">
-  <a href="{% url 'novecento:categorie' %}">‹ Tutte le categorie</a>
-  <span>900 {{ sede.nome }}</span>
-</nav>
+{% if gruppi|length > 1 %}
+  <nav class="schede" aria-label="Sottocategorie">
+    {% for blocco in gruppi %}
+      <a href="#g{{ blocco.gruppo.pk }}" class="scheda{% if forloop.first %} attiva{% endif %}" data-scheda="{{ blocco.gruppo.pk }}">
+        {{ blocco.gruppo.nome }}
+        <span class="conta" data-conteggio-gruppo="{{ blocco.gruppo.pk }}" {% if not blocco.selezionati %}hidden{% endif %}>{{ blocco.selezionati }}</span>
+      </a>
+    {% endfor %}
+  </nav>
+{% endif %}
 
-<h1 class="nv-title nv-title-sm">
-  <span class="nv-categoria-numero">{{ categoria.numero }}</span>
-  {{ categoria.nome }}
-</h1>
-
-<input type="search" class="form-control mb-3" placeholder="Filtra in questa categoria…" aria-label="Filtra articoli" data-filtro>
-
-<form method="post" novalidate id="form-categoria" data-url-quantita="{% url 'novecento:aggiorna_quantita' %}">
+<form method="post" novalidate id="form-ordine" data-url-quantita="{% url 'novecento:aggiorna_quantita' %}">
   {% csrf_token %}
+  {% if form.non_field_errors %}<div class="messaggio error">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+
   {% for blocco in gruppi %}
-    <details class="nv-gruppo" data-gruppo="{{ blocco.gruppo.pk }}"
-             {% if gruppi|length == 1 or blocco.selezionati or forloop.first %}open{% endif %}>
-      <summary>
-        <span class="nv-gruppo-nome">{{ blocco.gruppo.nome }}</span>
-        <span class="nv-gruppo-stato">
-          <span class="nv-pill" data-conteggio-gruppo="{{ blocco.gruppo.pk }}" {% if not blocco.selezionati %}hidden{% endif %}>{{ blocco.selezionati }}</span>
-          <span class="nv-gruppo-tot">{{ blocco.righe|length }} varianti</span>
-        </span>
-      </summary>
-      <ul class="nv-articoli list-unstyled">
+    <section class="sezione" id="g{{ blocco.gruppo.pk }}" data-sezione="{{ blocco.gruppo.pk }}">
+      <div class="sezione-titolo">
+        <h2>{{ blocco.gruppo.nome }}</h2>
+        <span>{{ blocco.righe|length }} variant{{ blocco.righe|length|pluralize:"e,i" }}</span>
+      </div>
+      <ul class="elenco card">
         {% for articolo, campo, ultima in blocco.righe %}
           {% include "novecento/_riga_articolo.html" with valore=campo.value errori=campo.errors %}
         {% endfor %}
       </ul>
-    </details>
+    </section>
   {% endfor %}
 
-  <div class="nv-nav-categorie">
-    {% if precedente %}
-      <button type="submit" name="vai" value="{{ precedente.numero }}" class="btn btn-outline-nv">‹ {{ precedente.numero }}</button>
-    {% else %}<span></span>{% endif %}
-    <button type="submit" name="vai" value="" class="btn btn-outline-nv flex-fill">Tutte le categorie</button>
+  <div class="azioni">
     {% if successiva %}
-      <button type="submit" name="vai" value="{{ successiva.numero }}" class="btn btn-outline-nv">{{ successiva.numero }} ›</button>
-    {% else %}<span></span>{% endif %}
+      <button type="submit" name="vai" value="{{ successiva.numero }}" class="btn btn-secondario">
+        Avanti: {{ successiva.icona }} {{ successiva.etichetta }} {% include "novecento/_icona.html" with nome="freccia" %}
+      </button>
+    {% endif %}
+    <button type="submit" name="vai" value="" class="btn btn-testo">Torna alle categorie</button>
   </div>
 
   {% include "novecento/_barra_carrello.html" with pulsante_form=True %}

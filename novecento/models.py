@@ -111,6 +111,12 @@ class Categoria(models.Model):
 
     numero = models.PositiveSmallIntegerField("numero", unique=True)
     nome = models.CharField("nome", max_length=120, unique=True)
+    nome_breve = models.CharField(
+        "nome breve",
+        max_length=30,
+        blank=True,
+        help_text="Nome corto per la griglia dell'app (es. «Bar»). Se vuoto si usa il nome.",
+    )
     descrizione = models.CharField(
         "descrizione",
         max_length=255,
@@ -129,6 +135,10 @@ class Categoria(models.Model):
 
     def __str__(self):
         return f"{self.numero} - {self.nome}"
+
+    @property
+    def etichetta(self):
+        return self.nome_breve or self.nome
 
 
 class Gruppo(models.Model):

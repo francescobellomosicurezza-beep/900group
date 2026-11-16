@@ -1,13 +1,14 @@
 {% extends "novecento/base.html" %}
 {% block title %}Account senza sede{% endblock %}
+{% block avviso %}{% endblock %}
 {% block content %}
-<h1 class="nv-title">- Accesso non abilitato -</h1>
-<div class="alert alert-warning">
-  L'account <strong>{{ user.username }}</strong> non è collegato a nessun punto vendita attivo.
-  Contatta l'amministratore.
+<div class="vuoto">
+  <div class="emoji">🔒</div>
+  <h1 class="titolo titolo-m">Accesso non abilitato</h1>
+  <p>L'account <strong>{{ user.username }}</strong> non è collegato a nessun punto vendita attivo. Contatta l'amministratore.</p>
 </div>
 <form method="post" action="{% url 'logout' %}">
   {% csrf_token %}
-  <button type="submit" class="btn btn-outline-nv btn-lg w-100">Esci</button>
+  <button type="submit" class="btn btn-secondario">Esci</button>
 </form>
 {% endblock %}

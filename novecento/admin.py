@@ -189,9 +189,9 @@ class GruppoInline(admin.TabularInline):
 
 @admin.register(Categoria)
 class CategoriaAdmin(admin.ModelAdmin):
-    list_display = ["numero", "nome", "icona", "numero_gruppi", "attiva"]
+    list_display = ["numero", "nome", "nome_breve", "icona", "numero_gruppi", "attiva"]
     list_display_links = ["nome"]
-    list_editable = ["attiva"]
+    list_editable = ["nome_breve", "icona", "attiva"]
     search_fields = ["nome", "descrizione"]
     inlines = [GruppoInline]
 

@@ -1,22 +1,19 @@
 {% if avviso_ordine %}
   {% with a=avviso_ordine %}
     {% if a.stato == "inviato" %}
-      <div class="nv-avviso ok" role="status">
-        <span class="nv-avviso-icona" aria-hidden="true">✓</span>
-        <span>Ordine di oggi inviato alle <strong>{{ a.ora|time:"H:i" }}</strong>{% if a.ordine.operatore %} da {{ a.ordine.operatore }}{% endif %}.</span>
+      <div class="stato ok" role="status">
+        <span class="punto" aria-hidden="true"></span>
+        <span>Ordine di oggi inviato alle <strong>{{ a.ora|time:"H:i" }}</strong>{% if a.ordine.operatore %} · {{ a.ordine.operatore }}{% endif %}</span>
       </div>
     {% elif a.stato == "in_ritardo" %}
-      <div class="nv-avviso ko" role="alert">
-        <span class="nv-avviso-icona" aria-hidden="true">!</span>
-        <span><strong>Ordine in ritardo</strong>: andava inviato entro le {{ a.scadenza|time:"H:i" }}. Invialo appena possibile.</span>
+      <div class="stato ko" role="alert">
+        <span class="punto" aria-hidden="true"></span>
+        <span><strong>In ritardo</strong> · andava inviato entro le {{ a.scadenza|time:"H:i" }}</span>
       </div>
     {% else %}
-      <div class="nv-avviso {% if a.urgente %}urgente{% else %}info{% endif %}" role="{% if a.urgente %}alert{% else %}status{% endif %}">
-        <span class="nv-avviso-icona" aria-hidden="true">⏰</span>
-        <span>
-          Ordine di oggi da inviare <strong>entro le {{ a.scadenza|time:"H:i" }}</strong>
-          {% if a.minuti < 60 %}(tra {{ a.minuti }} min){% else %}(tra {% widthratio a.minuti 60 1 %} h circa){% endif %}.
-        </span>
+      <div class="stato {% if a.urgente %}urgente{% else %}info{% endif %}" role="{% if a.urgente %}alert{% else %}status{% endif %}">
+        <span class="punto" aria-hidden="true"></span>
+        <span>Ordine entro le <strong>{{ a.scadenza|time:"H:i" }}</strong> · {% if a.minuti < 60 %}tra {{ a.minuti }} min{% else %}tra {% widthratio a.minuti 60 1 %} h{% endif %}</span>
       </div>
     {% endif %}
   {% endwith %}

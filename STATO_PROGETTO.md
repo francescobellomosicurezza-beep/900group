@@ -14,7 +14,10 @@ Ultimo aggiornamento: 16/11/2026
   promemoria ricorrente da aggiungere al calendario del telefono (.ics).
 - **Listino 900**: 7 categorie, 17 sottocategorie, 57 articoli. Codici e prezzi provvisori.
   Gestione massiva da admin → Articoli → Esporta/Importa Excel.
-- **Destinatari email** da admin → Impostazioni.
+- **Destinatari email e Gmail mittente** da admin → Impostazioni (con «Salva e invia email di prova»).
+- **Interfaccia premium** (16/11/2026): barra compatta, home a griglia con nomi brevi delle
+  categorie, sottocategorie a etichette scorrevoli, "+" che diventa "− n +", carrello flottante,
+  riepilogo modificabile, conferma animata, app installabile sulla schermata Home (manifest + icone).
 
 ## Da fare (prossimi passi)
 1. **Email** (la fa il titolare, account dell'azienda). Due opzioni:

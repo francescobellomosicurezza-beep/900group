@@ -1,25 +1,29 @@
 {% extends "novecento/base.html" %}
 {% load static %}
 {% block title %}Cerca{% endblock %}
-{% block content %}
-<nav class="nv-briciole" aria-label="Percorso">
-  <a href="{% url 'novecento:categorie' %}">‹ Tutte le categorie</a>
-  <span>900 {{ sede.nome }}</span>
-</nav>
 
-<form method="get" class="nv-cerca mb-3" role="search">
-  <input type="search" name="q" value="{{ testo }}" class="form-control form-control-lg" placeholder="Cerca un articolo o un codice…" aria-label="Cerca articolo" autofocus>
+{% block barra_sinistra %}
+  <a href="{% url 'novecento:categorie' %}" class="btn-tondo" aria-label="Tutte le categorie">{% include "novecento/_icona.html" with nome="indietro" %}</a>
+  <span class="barra-centro">Cerca</span>
+{% endblock %}
+
+{% block avviso %}{% endblock %}
+
+{% block content %}
+<form method="get" class="ricerca" role="search">
+  {% include "novecento/_icona.html" with nome="cerca" %}
+  <input type="search" name="q" value="{{ testo }}" placeholder="Cerca articolo o codice" aria-label="Cerca articolo o codice" autofocus enterkeyhint="search">
 </form>
 
-<div id="form-categoria" data-url-quantita="{% url 'novecento:aggiorna_quantita' %}">
+<div id="form-ordine" data-url-quantita="{% url 'novecento:aggiorna_quantita' %}">
   {% csrf_token %}
   {% if testo|length < 2 %}
-    <p class="text-muted text-center">Scrivi almeno 2 lettere.</p>
+    <div class="vuoto"><div class="emoji">🔎</div>Scrivi almeno 2 lettere del nome o del codice.</div>
   {% elif not righe %}
-    <p class="text-muted text-center">Nessun articolo trovato per «{{ testo }}».</p>
+    <div class="vuoto"><div class="emoji">🤷</div>Nessun articolo trovato per «{{ testo }}».</div>
   {% else %}
-    <p class="small text-muted">{{ righe|length }} risultat{{ righe|length|pluralize:"o,i" }} · le quantità si salvano da sole</p>
-    <ul class="nv-articoli list-unstyled">
+    <p class="etichetta-sezione">{{ righe|length }} risultat{{ righe|length|pluralize:"o,i" }}</p>
+    <ul class="elenco card">
       {% for articolo, valore, ultima in righe %}
         {% include "novecento/_riga_articolo.html" with mostra_percorso=True %}
       {% endfor %}
